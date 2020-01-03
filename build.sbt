@@ -19,3 +19,7 @@ libraryDependencies += "org.apache.spark" %% "spark-mllib" % "3.0.0-preview"
 libraryDependencies += "org.apache.lucene" % "lucene-analyzers-common" % "8.4.0"
 // https://mvnrepository.com/artifact/org.apache.lucene/lucene-core
 libraryDependencies += "org.apache.lucene" % "lucene-core" % "8.4.0"
+
+libraryDependencies ++= Seq(
+  "edu.stanford.nlp" % "stanford-corenlp" % "3.9.2",
+)
