@@ -1,6 +1,5 @@
 import org.apache.spark.ml.Pipeline
-import org.apache.spark.ml.feature.{StopWordsRemover, Tokenizer}
-import org.apache.spark.mlib.feature.{PorterStemmerWrapper, PunctuationRemover}
+import org.apache.spark.ml.feature._
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.{SparkConf, SparkContext}
 
@@ -35,14 +34,21 @@ object TextClassifier {
     val stemmer = new PorterStemmerWrapper("stemmer")
       .setInputCol("value3")
       .setOutputCol("value4")
+    val tf = new HashingTF()
+      .setInputCol(tokenizer.getOutputCol)
+      .setOutputCol("tf")
+    val idf = new IDF()
+      .setInputCol(tf.getOutputCol)
+      .setOutputCol("tfidf")
+
     val pipeline = new Pipeline()
-      .setStages(Array(tokenizer, stopWordsRemover, punctuationRemover, stemmer))
+      .setStages(Array(tokenizer, stopWordsRemover, punctuationRemover, stemmer, tf, idf))
 
     val result = pipeline.fit(df)
+        .transform(df)
 
     result
-      .transform(df)
-      .select("value4")
+      .select("tfidf")
       .show(false)
 
     sc.stop()

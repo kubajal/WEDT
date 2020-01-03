@@ -1,6 +1,5 @@
-package org.apache.spark.mllib.feature
+package org.apache.spark.ml.feature
 
-import org.apache.spark.mlib.feature.{PorterStemmerWrapper, PunctuationRemover}
 import org.apache.spark.sql.SparkSession
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
