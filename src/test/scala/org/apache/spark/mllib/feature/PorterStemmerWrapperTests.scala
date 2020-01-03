@@ -19,7 +19,7 @@ class PorterStemmerWrapperTests extends AnyFlatSpec with Matchers {
   import sparkSession.implicits._
 
    "Porter stemmer" should "correctly stem words" in {
-    val words = sparkSession.createDataset("Example"
+    val words = sparkSession.createDataset(Seq("Example"
         :: "weakness"
         :: "yields"
         :: "temptation"
@@ -28,15 +28,13 @@ class PorterStemmerWrapperTests extends AnyFlatSpec with Matchers {
         :: "temptations"
         :: "requires"
         :: "courage"
-        :: "Wilde" :: Nil
+        :: "Wilde" :: Nil)
     )
 
      val result = stemmer
        .transform(words)
-       .select("result")
-       .map(e => e.getString(0))
-       .collect
-       .toList
+       .head
+       .getAs[Seq[String]]("result")
 
      println(result)
 
