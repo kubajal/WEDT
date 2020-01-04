@@ -8,9 +8,10 @@ import org.tartarus.snowball.ext.PorterStemmer
 class PunctuationRemover(override val uid: String) extends UnaryTransformer[Seq[String], Seq[String], PunctuationRemover] with DefaultParamsWritable {
 
   override protected def createTransformFunc: Seq[String] => Seq[String] = { seqOfStrings => {
-      seqOfStrings.map(e => {
-        e.replaceAll("^([.!?,:;\"\'\\(\\[-]*)|([.!?,:;\"\'\\)\\]-]*)$", "")
-      })
+      seqOfStrings
+        .map(e => {
+          e.replaceAll("^([.!?,:;\"\'\\(\\[\\>\\<\\-]*)|([.!?,:;\"\'\\)\\]\\<\\>\\-]*)$", "")})
+        .filter(e => e.matches("^[a-zA-Z0-9':-]+$"))
     }
   }
 

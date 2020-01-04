@@ -22,4 +22,10 @@ libraryDependencies += "org.apache.lucene" % "lucene-core" % "8.4.0"
 
 libraryDependencies ++= Seq(
   "edu.stanford.nlp" % "stanford-corenlp" % "3.9.2",
+  "com.typesafe.akka" %% "akka-http"   % "10.1.11",
+  "com.typesafe.akka" %% "akka-stream" % "2.5.26" // or whatever the latest version is
+
 )
+
+// https://mvnrepository.com/artifact/io.spray/spray-json
+libraryDependencies += "io.spray" %% "spray-json" % "1.3.3"
