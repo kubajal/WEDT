@@ -18,13 +18,18 @@ class TextClassifierTests extends AnyFlatSpec with Matchers {
     sc.setLogLevel("DEBUG")
 
     val textClassifier = new TextClassifier(sc)
-    val dfTry = textClassifier.prepareDf("resources/tests/*")
+    val dfTry = textClassifier.prepareRdd("resources/tests/*")
     dfTry match {
       case Success(df) =>
-        df.collect should have size 20
+        val result = df.collect
+        val counts = result
+            .groupBy(e => e._1)
+
+        assert(counts.get(0.0).get.length == 20)
+        assert(counts.get(1.0).get.length == 20)
+        result
       case Failure(e) =>
         throw e
     }
   }
-
 }

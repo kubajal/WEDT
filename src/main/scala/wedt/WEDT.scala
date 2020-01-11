@@ -2,7 +2,10 @@ package wedt
 
 import org.apache.spark.{SparkConf, SparkContext}
 
-class WEDT extends App {
+object WEDT extends App {
+
+  private val defaultPath = "resources/20-newsgroups/*"
+
   override def main(args: Array[String]): Unit = {
 
     val conf = new SparkConf()
@@ -12,7 +15,7 @@ class WEDT extends App {
     sc.setLogLevel("DEBUG")
 
     val textClassifier = new TextClassifier(sc)
-
-
+    val path = if(args.length == 0) "resources/20-newsgroups/*" else args.head
+    textClassifier.run(path)
   }
 }

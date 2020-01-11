@@ -1,0 +1,548 @@
+From: lipman@oasys.dt.navy.mil (Robert Lipman)
+Subject: CALL FOR PRESENTATIONS: Navy SciViz/VR Seminar
+
+
+			CALL FOR PRESENTATIONS
+	
+      NAVY SCIENTIFIC VISUALIZATION AND VIRTUAL REALITY SEMINAR
+
+			Tuesday, June 22, 1993
+
+	    Carderock Division, Naval Surface Warfare Center
+	      (formerly the David Taylor Research Center)
+			  Bethesda, Maryland
+
+SPONSOR: NESS (Navy Engineering Software System) is sponsoring a 
+one-day Navy Scientific Visualization and Virtual Reality Seminar.  
+The purpose of the seminar is to present and exchange information for
+Navy-related scientific visualization and virtual reality programs, 
+research, developments, and applications.
+
+PRESENTATIONS: Presentations are solicited on all aspects of 
+Navy-related scientific visualization and virtual reality.  All 
+current work, works-in-progress, and proposed work by Navy 
+organizations will be considered.  Four types of presentations are 
+available.
+
+     1. Regular presentation: 20-30 minutes in length
+     2. Short presentation: 10 minutes in length
+     3. Video presentation: a stand-alone videotape (author need not 
+	attend the seminar)
+     4. Scientific visualization or virtual reality demonstration (BYOH)
+
+Accepted presentations will not be published in any proceedings, 
+however, viewgraphs and other materials will be reproduced for 
+seminar attendees.
+
+ABSTRACTS: Authors should submit a one page abstract and/or videotape to:
+
+     Robert Lipman
+     Naval Surface Warfare Center, Carderock Division
+     Code 2042
+     Bethesda, Maryland  20084-5000
+
+     VOICE (301) 227-3618;  FAX (301) 227-5753  
+     E-MAIL  lipman@oasys.dt.navy.mil
+
+Authors should include the type of presentation, their affiliations, 
+addresses, telephone and FAX numbers, and addresses.  Multi-author 
+papers should designate one point of contact.
+
+DEADLINES: The abstact submission deadline is April 30, 1993.  
+Notification of acceptance will be sent by May 14, 1993.  
+Materials for reproduction must be received by June 1, 1993.
+
+For further information, contact Robert Lipman at the above address.
+
+	  PLEASE DISTRIBUTE AS WIDELY AS POSSIBLE, THANKS.
+
+
+
+
+Robert Lipman                     | Internet: lipman@oasys.dt.navy.mil
+David Taylor Model Basin - CDNSWC |       or: lip@ocean.dt.navy.mil
+Computational Signatures and      | Voicenet: (301) 227-3618
+   Structures Group, Code 2042    | Factsnet: (301) 227-5753
+Bethesda, Maryland  20084-5000    | Phishnet: stockings@long.legs
+				   
+The sixth sick shiek's sixth sheep's sick.
+
+From: weston@ucssun1.sdsu.edu (weston t)
+Subject: graphical representation of vector-valued functions
+
+gnuplot, etc. make it easy to plot real valued functions of 2 variables
+but I want to plot functions whose values are 2-vectors. I have been 
+doing this by plotting arrays of arrows (complete with arrowheads) but
+before going further, I thought I would ask whether someone has already
+done the work. Any pointers??
+
+thanx in advance
+
+
+Tom Weston                    | USENET: weston@ucssun1.sdsu.edu
+Department of Philosophy      | (619) 594-6218 (office)
+San Diego State Univ.         | (619) 575-7477 (home)
+San Diego, CA 92182-0303      | 
+
+From: rap@coconut.cis.ufl.edu (Ryan Porter)
+Subject: Re: DMORPH
+
+In article <1993Apr3.183303.6442@usl.edu> jna8182@ucs.usl.edu (Armstrong Jay N) writes:
+>Can someone please tell me where I can ftp DTA or DMORPH?
+
+DMorf (Dave's Morph, I think is what it means) and DTax (Dave's 
+TGA Assembler) are available in the MSDOS_UPLOADS directory
+on the wuarchive.
+
+They are arjed and bundled with their respective xmemory versions,
+dmorfx.exe and dtax.exe, you can also find a version of aaplay.exe
+there, with which you can view files you create with dta.exe or
+dtax.exe.
+
+I downloaded the whole bunch last week and have been morphing 
+away the afternoons since.  The programmes are all a bit buggy and
+definitely not-ready-to-spread-to-the-masses, but they are very
+well written. 
+
+The interface is frustrating at first, but it gets easy once you
+figure out the tricks.
+
+I have noticed that dmorfx will crash horribly if you try to morph
+without using the splines option.  Not sure why, since I don't have
+the source.  I think it was written for TP 6.0.
+
+If anyone else comes up with any other hints on getting the thing 
+to work right, tell me; it took me several hours the first time
+just to figure out that if I just used the durned splines then 
+it would work...
+
+>JNA
+>jna8182@usl.edu
+
+-Ryan
+rap@cis.ufl.edu
+
+From: kph2q@onyx.cs.Virginia.EDU (Kenneth Hinckley)
+Subject:   VOICE INPUT -- vendor information needed
+
+
+Hello,
+     I am looking to add voice input capability to a user interface I am
+developing on an HP730 (UNIX) workstation.  I would greatly appreciate 
+information anyone would care to offer about voice input systems that are 
+easily accessible from the UNIX environment. 
+
+     The names or adresses of applicable vendors, as well as any 
+experiences you have had with specific systems, would be very helpful.
+
+     Please respond via email; I will post a summary if there is 
+sufficient interest.
+
+
+Thanks,
+Ken
+
+
+P.S.  I have found several impressive systems for IBM PC's, but I would 
+like to avoid the hassle of purchasing and maintaining a separate PC if 
+at all possible.
+
+-------------------------------------------------------------------------------
+Ken Hinckley (kph2q@virginia.edu)
+University of Virginia 
+Neurosurgical Visualization Laboratory
+-------------------------------------------------------------------------------
+
+From: joth@ersys.edmonton.ab.ca (Joe Tham)
+Subject: Where can I find SIPP?
+
+        I recently got a file describing a library of rendering routines 
+called SIPP (SImple Polygon Processor).  Could anyone tell me where I can 
+FTP the source code and which is the newest version around?
+        Also, I've never used Renderman so I was wondering if Renderman 
+is like SIPP?  ie. a library of rendering routines which one uses to make 
+a program that creates the image...
+
+                                        Thanks,  Joe Tham
+
+--
+Joe Tham              joth@ersys.edmonton.ab.ca 
+
+From: andrey@cco.caltech.edu (Andre T. Yew)
+Subject: Re: 16 million vs 65 thousand colors
+
+d9hh@dtek.chalmers.se (Henrik Harmsen) writes:
+
+>1-4 bits per R/G/B gives horrible machbanding visible in almost any picture.
+
+>5 bits per R/G/B (32768, 65000 colors) gives visible machbanding
+
+>color-gradient picture has _almost_ no machbanding. This color-resolution is 
+
+>see some small machbanding on the smooth color-gradient picture, but all in all,
+>There _ARE_ situiations where you get visible mach-banding even in
+>a 24 bit card. If
+>you create a very smooth color gradient of dark-green-white-yellow
+>or something and turn
+>up the contrast on the monitor, you will probably see some mach-banding.
+
+    While I don't mean to damn Henrik's attempt to be helpful here,
+he's using a common misconception that should be corrected.
+
+    Mach banding will occur for any image.  It is not the color
+quantization you see when you don't have enough bits.  It is the
+human eye's response to transitions or edges between intensities.
+The result is that colors near the transistion look brighter on
+the brighter side and darker on the darker side.
+
+--Andre
+
+-- 
+             Andre Yew andrey@cco.caltech.edu (131.215.139.2)
+
+From: oehler@picard.cs.wisc.edu (Eric Oehler)
+Subject: Translating TTTDDD to DXF or Swiv3D.
+
+I am a Mac-user when it comes to graphics (that's what I own software and hardware for) and
+I've recently come across a large number of TTTDDD format modeling databases.  Is there any
+software, mac or unix, for translating those to something I could use, like DXF?  Please
+reply via email.
+
+Thanx.
+Eric Oehler
+oehler@picard.cs.wisc.edu
+
+From: alex@talus.msk.su (Alex Kolesov)
+Subject: Help on RenderMan language wanted!
+
+Hello everybody !
+
+If you are using PIXAR'S RenderMan 3D scene description language for creating 3D worlds, please, help me. 
+
+I'm using RenderMan library on my NeXT but there is no documentation about NeXTSTEP version of RenderMan available. I can create very complicated scenes and render them using surface shaders, 
+but I can not bring them to life by applying shadows and reflections.
+
+As far as I understand I have to define environmental and shadows maps to produce reflections and shadows, but I do not know how to use them.
+
+Any advises or simple RIB or C examples will be appreciated.
+Thanks in advance...
+
+---
+Alex Kolesov                             Moscow, Russia.
+Talus Imaging & Communications Corporation
+e-mail: <alex@talus.msk.su> 		(NeXT mail accepted)  			   
+.   
+
+From: rowlands@pocomoco.NoSubdomain.NoDomain (Jon Rowlands)
+Subject: Re: More gray levels out of the screen
+
+In article <1pp991$t63@cc.tut.fi>, jk87377@lehtori.cc.tut.fi (Kouhia Juhana)
+writes:
+>In article <1993Apr5.040819.14943@kpc.com> hollasch@kpc.com (Steve
+>Hollasch) writes:
+>>
+>>    I think you're proposal would work to get an extra one, maybe two extra
+>>bits of color resolution.  However, if you had a display that chould do only
+>>zero or full intensity for each primary, I don't think you'd get great
+>>equivalent 24-bit photographs.
+>
+>I have not suggested to do so; I wrote about problems, and the problem
+>were clearly visible with 7 bit b&w images; not to mention 24 bit images.
+
+[ description of experiment deleted ]
+
+>If the 1 bit images are viewed quickly and in sync with screen,
+>then 100 intensities could be better than we have -- I dunno.
+
+[ more deleted ]
+
+>In any case, getting black color with slow machines is problem.
+>I could try it on our 8 bit screens but I don't know how to
+>render pixels with X in constant time. I recall our double buffer
+>has other image color and one b&w -- that doesn't help either.
+>Maybe I should dump photos to screen with low level code; how?
+
+A few years ago a friend and I took some 256 grey-level photos from
+a 1 bit Mac Plus screen using this method. Displaying all 256 levels
+synchronized to the 60Hz display took about 10 seconds. After
+experimenting with different aperture settings and screen
+brightnesses we found a range that worked well, giving respectable
+contrast. The quality of the images was pretty good. There were no
+visible contrast bands.
+
+To minimize the exposure time the display program built 255
+different 1 bit frames. The first contained a dot only for pixels
+that had value 255, the second only for pixels that had value 254,
+etc. These frames were stored using a sparse data structure that was
+very fast to 'or' onto the screen in sequence. Creating these
+frames sometimes took 5-10 minutes on that old Mac, but the camera
+shutter was closed during that time anyway. And yes, we wrote
+directly to the screen memory. Mea culpa.
+
+Our biggest problem was that small images were displayed in the
+top left corner of the screen instead of the center. It took
+an extra week to have the film developed and printed, because the
+processors took the trouble to manually move the all images into
+the center of the print. Who'd have guessed?
+
+regards,
+Jon Rowlands
+
+From: sloan@cis.uab.edu (Kenneth Sloan)
+Subject: Re: More gray levels out of the screen
+
+In article <C51C4r.BtG@csc.ti.com> rowlands@hc.ti.com (Jon Rowlands) writes:
+>
+>A few years ago a friend and I took some 256 grey-level photos from
+>a 1 bit Mac Plus screen using this method. Displaying all 256 levels
+>synchronized to the 60Hz display took about 10 seconds.
+
+Why didn't you create 8 grey-level images, and display them for
+1,2,4,8,16,32,64,128... time slices?
+
+This requires the same total exposure time, and the same precision in
+timing, but drastically reduces the image-preparation time, no?
+
+
+
+
+
+
+-- 
+Kenneth Sloan                   Computer and Information Sciences
+sloan@cis.uab.edu               University of Alabama at Birmingham
+(205) 934-2213                  115A Campbell Hall, UAB Station 
+(205) 934-5473 FAX              Birmingham, AL 35294-1170
+
+From: lex@optimla.aimla.com (Lex van Sonderen)
+Subject: Re: Rumours about 3DO ???
+
+In article <h1p4s4g@zola.esd.sgi.com> erik@westworld.esd.sgi.com (Erik Fortune) writes:
+>> better than CDI
+>*Much* better than CDI.
+Of course, I do not agree.  It does have more horsepower.  Horsepower is not
+the only measurement for 'better'.  It does not have full motion, full screen
+video yet.  Does it have CD-ROM XA?
+
+>> starting in the 4 quarter of 1993
+>The first 3DO "multiplayer" will be manufactured by panasonic and will be 
+>available late this year.   A number of other manufacturers are reported to 
+>have 3DO compatible boxes in the works.
+Which other manufacturers?
+We shall see about the date.
+
+>All this information is third hand or so and worth what you paid for it:-).
+This is second hand, but it still hard to look to the future ;-).
+
+Lex van Sonderen
+lex@aimla.com
+Philips Interactive Media
+
+From: teckjoo@iti.gov.sg (Chua Teck Joo)
+Subject: Visuallib (3D graphics for Windows)
+
+
+I am currently looking for a 3D graphics library that runs on MS
+Windows 3.1.  Are there any such libraries out there other than
+Visuallib?  (It must run on VGA and should not require any other
+add-on graphics cards).
+
+For Visuallib, will it run with Metaware High C compiler v3.0?  Any
+email contact for the author of Visuallib?
+
+Any help would be much appreciated.  Thanks.
+
+
+-- 
+* Chua, Teck Joo	    | Information Technology Institute *
+* Email: teckjoo@iti.gov.sg | 71 Science Park Drive	       *
+* Phone: (65) 772-0237 	    | Singapore (0511)		       *
+* Fax:   (65) 779-1827      |			   	       *
+
+From: cst@garfield.catt.ncsu.edu (Caroline Tsang)
+Subject: Graphics Library Package
+
+Hi all,
+
+  I am looking for a recommandation on a good royalty free graphics
+library package for C and C++ program.  This is mainly use to write
+children games and education software.  I heard someone mentioned Genus
+and also GFX ?  Are they any good?
+
+Please pardon me if my question sounds a little strange, I am asking
+this question for a friend.
+
+Thanks in advance!
+
+Caroline Tsang
+<cst@garfield.catt.ncsu.edu>
+  
+
+From: bprofane@netcom.com (Gert Niewahr)
+Subject: Re: Rumours about 3DO ???
+
+In article <C51Eyz.4Ix@optimla.aimla.com> lex@optimla.aimla.com (Lex van Sonderen) writes:
+>In article <h1p4s4g@zola.esd.sgi.com> erik@westworld.esd.sgi.com (Erik Fortune) writes:
+>>> better than CDI
+>>*Much* better than CDI.
+>Of course, I do not agree.  It does have more horsepower.  Horsepower is not
+>the only measurement for 'better'.  It does not have full motion, full screen
+>video yet.  Does it have CD-ROM XA?
+>
+>>> starting in the 4 quarter of 1993
+>>The first 3DO "multiplayer" will be manufactured by panasonic and will be 
+>>available late this year.   A number of other manufacturers are reported to 
+>>have 3DO compatible boxes in the works.
+>Which other manufacturers?
+>We shall see about the date.
+
+A 3DO marketing rep. recently offered a Phillips marketing rep. a $100
+bet that 3DO would have boxes on the market on schedule.  The Phillips
+rep. declined the bet, probably because he knew that 3DO players are
+already in pre-production manufacturing runs, 6 months before the
+commercial release date.
+
+By the time of commercial release, there will be other manufacturers of
+3DO players announced and possibly already tooling up production.  Chip
+sets will be in full production.  The number of software companies
+designing titles for the box will be over 300.
+
+How do I know this?  I was at a bar down the road from 3DO headquarters
+last week.  Some folks were bullshitting a little too loudly about
+company business.
+
+>>All this information is third hand or so and worth what you paid for it:-).
+>This is second hand, but it still hard to look to the future ;-).
+>
+>Lex van Sonderen
+>lex@aimla.com
+>Philips Interactive Media
+ ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+ What an impartial source!
+
+From: hl7204@eehp22 (H L)
+Subject: Re: Graphics Library Package
+
+  
+
+
+From: steveq@DIALix.oz.au (Steve Quartly)
+Subject: WANTED: SIRD Alogorythmn
+
+Hi,
+
+I'm interested in writing a program to generate a SIRD picture, you know
+the stereogram where you cross your eyes and the picture becomes 3D.
+
+Does anyone have one or know where I can get one?
+
+Please e-mail to steveq@sndcrft.DIALix.oz.au with any replies.
+
+Many thanks for your help.
+
+Steve Q.
+
+From: ari@tahko.lpr.carel.fi (Ari Suutari)
+Subject: Any graphics packages available for AIX ?
+
+
+	Does anybody know if there are any good 2d-graphics packages
+	available for IBM RS/6000 & AIX ? I'm looking for something
+	like DEC's GKS or Hewlett-Packards Starbase, both of which
+	have reasonably good support for different output devices
+	like plotters, terminals, X etc.
+
+	I have tried also xgks from X11 distribution and IBM's implementation
+	of Phigs. Both of them work but we require more output devices
+	than just X-windows.
+
+	Our salesman at IBM was not very familiar with graphics and
+	I am not expecting for any good solutions from there.
+
+
+		Ari
+
+---
+
+	Ari Suutari			ari@carel.fi
+	Carelcomp Oy
+	Lappeenranta
+	FINLAND
+
+
+From: wijkstra@fwi.uva.nl (Marcel Wijkstra (AIO))
+Subject: Re: BW hardcopy of colored window?
+
+mars@ixos.de (Martin Stein) writes:
+
+#I use xwd/xpr (from the X11R5 dist.) and various programs of the
+#ppm-tools to print hardcopies of colored X windows. My problem is,
+
+I don't like xpr. It gives (at least, the X11R4 version does) louzy
+output: the hardcopy looks very grainy to me.
+Instead, I use pnmtops. This takes full advantage PostScript, and
+lets the printer do the dirty job of dithering a (graylevel)
+image to black and white dots.
+
+So: if you have a PostScript printer, try:
+	xwdtopnm <xwdfile> |	# convert to PPM
+	[ppmtopgm |]		# .. to graylevel for smaller file to print
+	pnmtops -noturn |	# .. to PostScript
+	lpr			# print
+
+pnmtops Has several neat options, but use them with care:
+If you want your image to be 4" wide, use:
+	pnmtops -noturn -scale 100 -width 4
+-noturn Prevents the image from being rotated (if it is wider than it
+	is high)
+-width 4 Specifies the PAPER width (not the image width - see below)
+-scale 100 Is used because if the image is small, it may fit within a
+	width less than 4", and will thus be printed smaller than 4" wide.
+	If you first scale it up a lot, it will certainly not fit in 4", and
+	will be scaled down by pnmtops automatically to fit the specified
+	paper width. 
+	In short: pnmtops will scale an image down to fit the paper size,
+	but it will not blow it up automatically.
+
+Hope this helps.
+Marcel.
+-- 
+ X	   Marcel Wijkstra   AIO   (wijkstra@fwi.uva.nl)
+|X|	     Faculty of Mathematics and Computer Science	
+ X	       University of Amsterdam   The Netherlands
+======Life stinks. Fortunately, I've got a cold.========
+
+From: jk87377@lehtori.cc.tut.fi (Kouhia Juhana)
+Subject: Re: More gray levels out of the screen
+
+In article <1993Apr6.011605.909@cis.uab.edu> sloan@cis.uab.edu
+(Kenneth Sloan) writes:
+>
+>Why didn't you create 8 grey-level images, and display them for
+>1,2,4,8,16,32,64,128... time slices?
+
+By '8 grey level images' you mean 8 items of 1bit images?
+It does work(!), but it doesn't work if you have more than 1bit
+in your screen and if the screen intensity is non-linear.
+
+With 2 bit per pixel; there could be 1*c_1 + 4*c_2 timing,
+this gives 16 levels, but they are linear if screen intensity is
+linear.
+With 1*c_1 + 2*c_2 it works, but we have to find the best
+compinations -- there's 10 levels, but 16 choises; best 10 must be
+chosen. Different compinations for the same level, varies a bit, but
+the levels keeps their order.
+
+Readers should verify what I wrote... :-)
+
+Juhana Kouhia
+
+From: renouar@amertume.ufr-info-p7.ibp.fr (Renouard Olivier)
+Subject: LOOKING for CTDS !
+
+I can't find CTDS (Connect The Dots Smoother) in France. If it is a commercial
+program I'll happily pay whatever it may cost (do not take it litterally).
+Please help!
+I have *LOTS* of PoV sources, texture images and animations though, if you
+are looking for something, just tell.

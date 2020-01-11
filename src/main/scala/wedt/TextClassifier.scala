@@ -3,7 +3,9 @@ package wedt
 import org.apache.log4j.LogManager
 import org.apache.spark.ml.Pipeline
 import org.apache.spark.ml.classification.{LogisticRegression, MultilayerPerceptronClassifier, NaiveBayes, OneVsRest}
+import org.apache.spark.ml.evaluation.MulticlassClassificationEvaluator
 import org.apache.spark.ml.feature._
+import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.{DataFrame, SparkSession}
 import org.apache.spark.sql.types.{DoubleType, IntegerType}
 import org.apache.spark.{SparkConf, SparkContext}
@@ -14,7 +16,7 @@ class TextClassifier(val sc: SparkContext) {
 
   private val defaultPath = "resources/20-newsgroups/*"
 
-  def prepareDf(path: String): Try[DataFrame] = {
+  def prepareRdd(path: String): Try[RDD[(Double, String)]] = {
 
     val plainTextTry = Try(sc.wholeTextFiles(path))
     plainTextTry match {
@@ -23,16 +25,13 @@ class TextClassifier(val sc: SparkContext) {
         //todo: zrobic porzadne logowanie
         println("liczba wczytanych plikow: " + plainText.count())
 
-        val sqlContext = SparkSession.builder.getOrCreate().sqlContext
-        import sqlContext.implicits._
-
         Success(plainText
           .zipWithIndex
           .map(e => (e._1._1, e._1._2, e._2.toDouble))
-          .flatMap(e => e._2.split("From:").filter(e => e != "").map(f => (e._3, f.take(100))))
-          .toDF()
-          .withColumnRenamed("_2", "features_0")
-          .withColumnRenamed("_1", "label"))
+          .flatMap(e => e._2
+            .split("From:")
+            .filter(e => e != "")
+            .map(f => (e._3, f.take(100)))))
       case Failure(e) =>
         //todo: zrobic porzadne logowanie
         println(s"Could not load files from the path: $path")
@@ -69,23 +68,46 @@ class TextClassifier(val sc: SparkContext) {
 
   def run(path: String): Unit = {
 
-        prepareDf(path) match {
-          case Success(df) =>
+        prepareRdd(path) match {
+          case Success(rdd) =>
 
-            val result = preparePipeline().fit(df)
-            .transform(df)
-            .select("label", "features")
+            val sqlContext = SparkSession.builder.getOrCreate().sqlContext
+            import sqlContext.implicits._
 
-            val classifier = new NaiveBayes()
+            val df = rdd.toDF()
+              .withColumnRenamed("_1", "label")
+              .withColumnRenamed("_2", "features_0")
 
-            val oneVsRest = new OneVsRest().setClassifier(classifier)
+            val Array(train, test) = preparePipeline().fit(df)
+              .transform(df)
+              .select("label", "features")
+              .randomSplit(Array(0.7, 0.3))
 
-            val model = oneVsRest.fit(result)
+            println("random split -- train: " + train.count + ", test: " + test.count)
+
+            val oneVsRest = new OneVsRest().setClassifier(new NaiveBayes())
+
+            val ovrModel = oneVsRest.fit(train)
+            val predictions = ovrModel.transform(test)
+
+            // obtain evaluator.
+            val accuracyEvaluator = new MulticlassClassificationEvaluator()
+              .setMetricName("accuracy")
+            val precisionEvaluator = new MulticlassClassificationEvaluator()
+              .setMetricName("weightedPrecision")
+
+            // compute the classification error on test data.
+            val accuracy = accuracyEvaluator.evaluate(predictions)
+            val precision = precisionEvaluator.evaluate(predictions)
+            println(s"Accuracy  = $accuracy")
+            println(s"Precision = $precision")
+
+            "predictions:"
+            predictions.show(1000, false)
 
             sc.stop()
           case Failure(e) =>
             throw e
         }
-
     }
 }
