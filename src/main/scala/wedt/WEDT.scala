@@ -1,52 +1,57 @@
 package wedt
 
 import org.apache.spark.ml.Pipeline
+import org.apache.spark.ml.classification.{LogisticRegression, NaiveBayes}
 import org.apache.spark.ml.feature._
+import org.apache.spark.rdd.RDD
 import org.apache.spark.{SparkConf, SparkContext}
 
-import scala.util.{Failure, Success}
+import scala.util.{Failure, Success, Try}
 
-object WEDT extends App {
+object WEDT extends App with Configuration {
 
-  private val defaultPath = "resources/20-newsgroups/*"
+  def prepareRdd(path: String): RDD[(Double, String)] = {
 
-  def preparePipeline(): Pipeline = {
+    val plainTextTry = Try(sparkContext.wholeTextFiles(path))
+    plainTextTry match {
+      case Success(plainText) =>
 
-    val tokenizer = new Tokenizer()
-      .setInputCol("features_0")
-    val stopWordsRemover = new StopWordsRemover()
-      .setInputCol("features_1")
-    val punctuationRemover = new PunctuationRemover("punctuationRemover")
-      .setInputCol("features_2")
-    val stemmer = new PorterStemmerWrapper("stemmer")
-      .setInputCol("features_3")
-    val tf = new HashingTF()
-      .setInputCol("features_4")
-    val idf = new IDF()
-      .setInputCol("features_5")
+        //todo: zrobic porzadne logowanie
+        println("liczba wczytanych plikow: " + plainText.count())
 
-    tokenizer.setOutputCol(stopWordsRemover.getInputCol)
-    stopWordsRemover.setOutputCol(punctuationRemover.getInputCol)
-    punctuationRemover.setOutputCol(stemmer.getInputCol)
-    stemmer.setOutputCol(tf.getInputCol)
-    tf.setOutputCol(idf.getInputCol)
-    idf.setOutputCol("features")
-
-    new Pipeline()
-      .setStages(Array(tokenizer, stopWordsRemover, punctuationRemover, stemmer, tf, idf))
+        plainText
+          .zipWithIndex
+          .map(e => (e._1._1, e._1._2, e._2.toDouble))
+          .flatMap(e => e._2
+            .split("From:")
+            .filter(e => e != "")
+            .map(f => (e._3, f.take(100).replaceAll("[\n\r]", ""))))
+      case Failure(e) =>
+        //todo: zrobic porzadne logowanie
+        println(s"Could not load files from the path: $path")
+        sparkContext.stop()
+        throw e
+    }
   }
 
   override def main(args: Array[String]): Unit = {
 
-    val conf = new SparkConf()
-    conf.setMaster("local")
-    conf.setAppName("WEDT")
-    val sc: SparkContext = new SparkContext(conf)
-    sc.setLogLevel("DEBUG")
+    import sqlContext.implicits._
 
-    val textClassifier = new TextClassifier(sc, preparePipeline())
+    val textClassifier = new OneVsRestClassifier(new NaiveBayes())
     val path = if(args.length == 0) "resources/20-newsgroups/*" else args.head
-    textClassifier.learn(textClassifier.prepareRdd(path))
-    textClassifier.test()
+
+    val df = this.prepareRdd(path)
+      .toDF()
+      .withColumnRenamed("_1", "label")
+      .withColumnRenamed("_2", "features_0")
+
+    val Array(train, validate) = pipeline.fit(df)
+      .transform(df)
+      .select("label", "features", "features_0")
+      .randomSplit(Array(0.8, 0.2))
+
+    textClassifier.learn(train)
+    textClassifier.test(validate)
   }
 }

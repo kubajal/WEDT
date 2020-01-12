@@ -1,6 +1,7 @@
 package wedt
 
 import org.apache.spark.ml.Pipeline
+import org.apache.spark.ml.classification.NaiveBayes
 import org.apache.spark.ml.feature._
 import org.apache.spark.rdd.RDD
 import org.apache.spark.{SparkConf, SparkContext}
@@ -10,7 +11,7 @@ import org.scalatest.matchers.should.Matchers
 
 import scala.util.{Failure, Success, Try}
 
-class TextClassifierTests extends AnyFlatSpec with Matchers {
+class WEDTTests extends AnyFlatSpec with Matchers {
 
   val sqlContext: SQLContext = SparkSession.builder.getOrCreate().sqlContext
   val sc: SparkContext = SparkSession.builder.getOrCreate().sparkContext
@@ -50,8 +51,8 @@ class TextClassifierTests extends AnyFlatSpec with Matchers {
     val sc: SparkContext = new SparkContext(conf)
     sc.setLogLevel("DEBUG")
 
-    val textClassifier = new TextClassifier(this.sc, preparePipeline)
-    val rdd = textClassifier.prepareRdd("resources/tests/*")
+    val textClassifier = new OneVsRestClassifier(new NaiveBayes)
+    val rdd = WEDT.prepareRdd("resources/tests/*")
     val result = rdd.collect
     val counts = result
         .groupBy(e => e._1)
