@@ -5,15 +5,19 @@ import org.apache.spark.ml.Pipeline
 import org.apache.spark.ml.classification._
 import org.apache.spark.ml.evaluation.MulticlassClassificationEvaluator
 import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.{SQLContext, SparkSession}
+import org.apache.spark.sql.{DataFrame, SQLContext, SparkSession}
 
 import scala.util.{Failure, Success, Try}
 
-class MulticlassClassifier(val sc: SparkContext, val pipeline: Pipeline) {
+class MulticlassClassifier extends ClassifierBase {
+
   //todo: dorobic perceptron (czyli nie trzeba uzywac OneVsRest)
-
-  private val defaultPath = "resources/20-newsgroups/*"
-  var ovrModel: OneVsRestModel = _
-
-  val sqlContext: SQLContext = SparkSession.builder.getOrCreate().sqlContext
+  override def learn(train: DataFrame): Unit = {
+    val classifier = new MultilayerPerceptronClassifier()
+      .setLayers(layers)
+      .setBlockSize(128)
+      .setSeed(1234L)
+      .setMaxIter(100)
+    model = classifier.fit(train)
+  }
 }

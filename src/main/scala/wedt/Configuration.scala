@@ -20,4 +20,6 @@ trait Configuration {
   val sqlContext: SQLContext = sparkSession.sqlContext
   val pipeline: TextPipeline = new TextPipeline()
   var model: Model[_] = _
+
+  val layers: Array[Int] = Array[Int](4, 5, 4, 3)
 }

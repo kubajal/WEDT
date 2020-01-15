@@ -13,7 +13,7 @@ import org.apache.spark
 
 import scala.util.{Failure, Success, Try}
 
-class OneVsRestClassifier(override val classifier: Classifier[_,_,_]) extends ClassifierBase(classifier) {
+class OneVsRestClassifier(val classifier: Classifier[_,_,_]) extends ClassifierBase {
 
   override def learn(train: DataFrame): Unit = {
     val oneVsRest = new OneVsRest().setClassifier(classifier)

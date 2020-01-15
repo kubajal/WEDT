@@ -9,7 +9,7 @@ import org.apache.spark.sql.{DataFrame, SQLContext, SparkSession}
 
 import scala.util.{Failure, Success, Try}
 
-abstract class ClassifierBase(val classifier: Classifier[_,_,_]) extends Configuration {
+abstract class ClassifierBase extends Configuration {
 
   import sqlContext.implicits._
 
@@ -30,8 +30,8 @@ abstract class ClassifierBase(val classifier: Classifier[_,_,_]) extends Configu
     println(s"Precision = $precision")
 
     predictions
-      .select("features_0", "prediction")
-      .map(row => (row.getAs[String]("features_0").take(100) + "...", row.getAs[Double]("prediction")))
+      .select("label", "prediction", "features_0")
+      .map(row => (row.getAs[Double]("prediction"), row.getAs[Double]("label"), row.getAs[String]("features_0").take(100) + "..."))
       .show(false)
   }
 }
