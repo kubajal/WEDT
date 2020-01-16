@@ -2,6 +2,7 @@ package wedt
 
 import java.util.Calendar
 
+import org.apache.log4j.Logger
 import org.apache.spark.ml.Pipeline
 import org.apache.spark.ml.classification.{LogisticRegression, MultilayerPerceptronClassifier, NaiveBayes, OneVsRest}
 import org.apache.spark.ml.evaluation.MulticlassClassificationEvaluator
@@ -17,7 +18,6 @@ import scala.util.{Failure, Success, Try}
 object WEDT extends App with Configuration {
   var firstLevelLabelsMapping: Map[String, Double] = _
   var secondLevelLabelsMapping: Map[String, Double] = _
-  val time = Calendar.getInstance()
 
   //                                labelidx  text    label
   def prepareRdd(path: String): RDD[TaggedText] = {
@@ -35,7 +35,7 @@ object WEDT extends App with Configuration {
           .map(e => (e._1.head, e._1.takeRight(e._1.length-1).reduce((a,b) => a+"."+b), e._2))
 
         //todo: zrobic porzadne logowanie
-        println("liczba wczytanych plikow: " + plainText.count())
+        log.info("liczba wczytanych plikow: " + plainText.count())
 
         firstLevelLabelsMapping =  plainText
           .map(e => e._1)
@@ -62,7 +62,7 @@ object WEDT extends App with Configuration {
             .map(f => TaggedText(e._1, e._2, e._3, e._4, f)))
       case Failure(e) =>
         //todo: zrobic porzadne logowanie
-        println(s"Could not load files from the path: $path")
+        log.info(s"Could not load files from the path: $path")
         sparkContext.stop()
         throw e
     }
@@ -70,11 +70,11 @@ object WEDT extends App with Configuration {
 
   override def main(args: Array[String]): Unit = {
 
-    println("poczatek: " + time.getTime.toString)
+    log.info("Start!")
 
     import sqlContext.implicits._
 
-    val path = if(args.length == 0) "resources/20-newsgroups/*" else args.head
+    val path = if(args.length == 0) "resources/sport/football/*" else args.head
 //    val path = if(args.length == 0) "resources/sport/football/*" else args.head
 
     val df = this.prepareRdd(path)
@@ -103,7 +103,7 @@ object WEDT extends App with Configuration {
         .fit(firstLevelDataset)
 
     val secondLevelClassifiers = firstLevelLabelsMapping.values
-      .map(e => (e -> df.where($"firstLevelLabelValue" <=> e)))
+      .map(e => e -> df.where($"firstLevelLabelValue" <=> e))
       .map(e => {
         val ovrClassifier = new OneVsRest().setClassifier(new LogisticRegression())
         val cv = new CrossValidator()
@@ -126,7 +126,7 @@ object WEDT extends App with Configuration {
       .transform(aa)
     val firstLevel = firstLevelClassifier.transform(aaa)
 
-    println("first level: ")
+    log.info("first level: ")
     firstLevel
       .drop("features_0")
       .show(false)
@@ -134,14 +134,17 @@ object WEDT extends App with Configuration {
     val secondLevel = firstLevelLabelsMapping.values
       .map(e => (e, firstLevel
         .where($"firstLevelLabelValue" <=> e)))
-      .map(e => secondLevelClassifiers(e._1).transform(e._2
-        .drop("prediction")
-        .drop("rawPrediction")
-        .drop("label")
-      .withColumnRenamed("secondLevelLabelValue", "label")))
+      .map(e => {
+        log.info("learning 2nd level classifier on class: " + e)
+        secondLevelClassifiers(e._1).transform(e._2
+          .drop("prediction")
+          .drop("rawPrediction")
+          .drop("label")
+          .withColumnRenamed("secondLevelLabelValue", "label"))
+      })
       .reduce((a, b) => a.union(b))
 
-    println("second level: ")
+    log.info("second level: ")
     secondLevel
       .drop("features_0")
       .show(false)
@@ -152,10 +155,10 @@ object WEDT extends App with Configuration {
       .setMetricName("weightedPrecision")
     val accuracy = accuracyEvaluator.evaluate(secondLevel)
     val precision = precisionEvaluator.evaluate(secondLevel)
-    println(s"Accuracy  = $accuracy")
-    println(s"Precision = $precision")
+    log.info(s"Accuracy  = $accuracy")
+    log.info(s"Precision = $precision")
 
 
-    println("koniec: " + time.getTime.toString)
+    log.info("Koniec!")
   }
 }
