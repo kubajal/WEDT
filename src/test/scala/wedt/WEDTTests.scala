@@ -1,7 +1,7 @@
 package wedt
 
 import org.apache.spark.ml.Pipeline
-import org.apache.spark.ml.classification.NaiveBayes
+import org.apache.spark.ml.classification.{LogisticRegression, NaiveBayes, OneVsRest}
 import org.apache.spark.ml.feature._
 import org.apache.spark.rdd.RDD
 import org.apache.spark.{SparkConf, SparkContext}
@@ -17,7 +17,7 @@ class WEDTTests extends AnyFlatSpec with Matchers with Configuration {
   import sqlContext.implicits._
    "Text classifier" should "split text data from a file into single e-mails" in {
 
-    val textClassifier = new OneVsRestClassifier(new NaiveBayes)
+    val textClassifier = new OneVsRest().setClassifier(new LogisticRegression())
     val rdd = WEDT.prepareRdd("resources/tests/*")
     val result = rdd.collect
     val counts = result

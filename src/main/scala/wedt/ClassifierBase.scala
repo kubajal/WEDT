@@ -9,7 +9,7 @@ import org.apache.spark.sql.{DataFrame, SQLContext, SparkSession}
 
 import scala.util.{Failure, Success, Try}
 
-abstract class ClassifierBase extends Configuration {
+trait ClassifierBase extends Configuration {
 
   import sqlContext.implicits._
 
