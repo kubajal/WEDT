@@ -4,7 +4,7 @@ import org.apache.log4j.Logger
 import org.apache.spark.ml.feature._
 import org.apache.spark.{SparkConf, SparkContext}
 import org.apache.spark.ml.{Model, Pipeline}
-import org.apache.spark.sql.{SQLContext, SparkSession}
+import org.apache.spark.sql.{DataFrame, SQLContext, SparkSession}
 import wedt.WEDT.{getClass, sparkContext}
 
 trait Configuration {

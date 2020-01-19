@@ -1,11 +1,11 @@
 package wedt
 
 import org.apache.spark.ml.classification.{LogisticRegression, OneVsRest}
-import org.apache.spark.ml.{Pipeline, PipelineModel}
+import org.apache.spark.ml.{Estimator, Pipeline, PipelineModel}
 import org.apache.spark.ml.feature._
 import org.apache.spark.sql.Dataset
 
-class TextPipeline extends Pipeline {
+class TextPipeline(mlc: Estimator[_]) extends Pipeline {
 
   private val tokenizer = new Tokenizer()
     .setInputCol("features_0")
@@ -19,11 +19,6 @@ class TextPipeline extends Pipeline {
     .setInputCol("features_4")
   private val idf = new IDF()
     .setInputCol("features_5")
-  private val mlc = new MultilayerClassifier(
-    new OneVsRest().setClassifier(new LogisticRegression()),
-    (for {i <- 1 to 20} yield new OneVsRest().setClassifier(new LogisticRegression())).toList,
-    "mlc"
-  )
 
   tokenizer.setOutputCol(stopWordsRemover.getInputCol)
   stopWordsRemover.setOutputCol(punctuationRemover.getInputCol)

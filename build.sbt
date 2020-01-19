@@ -29,3 +29,5 @@ libraryDependencies ++= Seq(
 
 // https://mvnrepository.com/artifact/io.spray/spray-json
 libraryDependencies += "io.spray" %% "spray-json" % "1.3.3"
+// https://mvnrepository.com/artifact/com.fasterxml.jackson.module/jackson-module-scala
+libraryDependencies += "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.10.1"

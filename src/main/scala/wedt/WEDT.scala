@@ -20,7 +20,6 @@ object WEDT extends Configuration {
   var firstLevelLabelsMapping: Map[String, Double] = _
   var secondLevelLabelsMapping: Map[String, Double] = _
 
-  //                                labelidx  text    label
   def prepareRdd(path: String): RDD[TaggedText] = {
 
     val plainTextTry = Try(sparkContext.wholeTextFiles(path))

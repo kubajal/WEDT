@@ -1,0 +1,315 @@
+From: lipman@oasys.dt.navy.mil (Robert Lipman)
+Subject: CALL FOR PRESENTATIONS: Navy SciViz/VR Seminar
+
+
+			CALL FOR PRESENTATIONS
+	
+      NAVY SCIENTIFIC VISUALIZATION AND VIRTUAL REALITY SEMINAR
+
+			Tuesday, June 22, 1993
+
+	    Carderock Division, Naval Surface Warfare Center
+	      (formerly the David Taylor Research Center)
+			  Bethesda, Maryland
+
+SPONSOR: NESS (Navy Engineering Software System) is sponsoring a 
+one-day Navy Scientific Visualization and Virtual Reality Seminar.  
+The purpose of the seminar is to present and exchange information for
+Navy-related scientific visualization and virtual reality programs, 
+research, developments, and applications.
+
+PRESENTATIONS: Presentations are solicited on all aspects of 
+Navy-related scientific visualization and virtual reality.  All 
+current work, works-in-progress, and proposed work by Navy 
+organizations will be considered.  Four types of presentations are 
+available.
+
+     1. Regular presentation: 20-30 minutes in length
+     2. Short presentation: 10 minutes in length
+     3. Video presentation: a stand-alone videotape (author need not 
+	attend the seminar)
+     4. Scientific visualization or virtual reality demonstration (BYOH)
+
+Accepted presentations will not be published in any proceedings, 
+however, viewgraphs and other materials will be reproduced for 
+seminar attendees.
+
+ABSTRACTS: Authors should submit a one page abstract and/or videotape to:
+
+     Robert Lipman
+     Naval Surface Warfare Center, Carderock Division
+     Code 2042
+     Bethesda, Maryland  20084-5000
+
+     VOICE (301) 227-3618;  FAX (301) 227-5753  
+     E-MAIL  lipman@oasys.dt.navy.mil
+
+Authors should include the type of presentation, their affiliations, 
+addresses, telephone and FAX numbers, and addresses.  Multi-author 
+papers should designate one point of contact.
+
+DEADLINES: The abstact submission deadline is April 30, 1993.  
+Notification of acceptance will be sent by May 14, 1993.  
+Materials for reproduction must be received by June 1, 1993.
+
+For further information, contact Robert Lipman at the above address.
+
+	  PLEASE DISTRIBUTE AS WIDELY AS POSSIBLE, THANKS.
+
+
+
+
+Robert Lipman                     | Internet: lipman@oasys.dt.navy.mil
+David Taylor Model Basin - CDNSWC |       or: lip@ocean.dt.navy.mil
+Computational Signatures and      | Voicenet: (301) 227-3618
+   Structures Group, Code 2042    | Factsnet: (301) 227-5753
+Bethesda, Maryland  20084-5000    | Phishnet: stockings@long.legs
+				   
+The sixth sick shiek's sixth sheep's sick.
+
+From: weston@ucssun1.sdsu.edu (weston t)
+Subject: graphical representation of vector-valued functions
+
+gnuplot, etc. make it easy to plot real valued functions of 2 variables
+but I want to plot functions whose values are 2-vectors. I have been 
+doing this by plotting arrays of arrows (complete with arrowheads) but
+before going further, I thought I would ask whether someone has already
+done the work. Any pointers??
+
+thanx in advance
+
+
+Tom Weston                    | USENET: weston@ucssun1.sdsu.edu
+Department of Philosophy      | (619) 594-6218 (office)
+San Diego State Univ.         | (619) 575-7477 (home)
+San Diego, CA 92182-0303      | 
+
+From: rap@coconut.cis.ufl.edu (Ryan Porter)
+Subject: Re: DMORPH
+
+In article <1993Apr3.183303.6442@usl.edu> jna8182@ucs.usl.edu (Armstrong Jay N) writes:
+>Can someone please tell me where I can ftp DTA or DMORPH?
+
+DMorf (Dave's Morph, I think is what it means) and DTax (Dave's 
+TGA Assembler) are available in the MSDOS_UPLOADS directory
+on the wuarchive.
+
+They are arjed and bundled with their respective xmemory versions,
+dmorfx.exe and dtax.exe, you can also find a version of aaplay.exe
+there, with which you can view files you create with dta.exe or
+dtax.exe.
+
+I downloaded the whole bunch last week and have been morphing 
+away the afternoons since.  The programmes are all a bit buggy and
+definitely not-ready-to-spread-to-the-masses, but they are very
+well written. 
+
+The interface is frustrating at first, but it gets easy once you
+figure out the tricks.
+
+I have noticed that dmorfx will crash horribly if you try to morph
+without using the splines option.  Not sure why, since I don't have
+the source.  I think it was written for TP 6.0.
+
+If anyone else comes up with any other hints on getting the thing 
+to work right, tell me; it took me several hours the first time
+just to figure out that if I just used the durned splines then 
+it would work...
+
+>JNA
+>jna8182@usl.edu
+
+-Ryan
+rap@cis.ufl.edu
+
+From: kph2q@onyx.cs.Virginia.EDU (Kenneth Hinckley)
+Subject:   VOICE INPUT -- vendor information needed
+
+
+Hello,
+     I am looking to add voice input capability to a user interface I am
+developing on an HP730 (UNIX) workstation.  I would greatly appreciate 
+information anyone would care to offer about voice input systems that are 
+easily accessible from the UNIX environment. 
+
+     The names or adresses of applicable vendors, as well as any 
+experiences you have had with specific systems, would be very helpful.
+
+     Please respond via email; I will post a summary if there is 
+sufficient interest.
+
+
+Thanks,
+Ken
+
+
+P.S.  I have found several impressive systems for IBM PC's, but I would 
+like to avoid the hassle of purchasing and maintaining a separate PC if 
+at all possible.
+
+-------------------------------------------------------------------------------
+Ken Hinckley (kph2q@virginia.edu)
+University of Virginia 
+Neurosurgical Visualization Laboratory
+-------------------------------------------------------------------------------
+
+From: joth@ersys.edmonton.ab.ca (Joe Tham)
+Subject: Where can I find SIPP?
+
+        I recently got a file describing a library of rendering routines 
+called SIPP (SImple Polygon Processor).  Could anyone tell me where I can 
+FTP the source code and which is the newest version around?
+        Also, I've never used Renderman so I was wondering if Renderman 
+is like SIPP?  ie. a library of rendering routines which one uses to make 
+a program that creates the image...
+
+                                        Thanks,  Joe Tham
+
+--
+Joe Tham              joth@ersys.edmonton.ab.ca 
+
+From: andrey@cco.caltech.edu (Andre T. Yew)
+Subject: Re: 16 million vs 65 thousand colors
+
+d9hh@dtek.chalmers.se (Henrik Harmsen) writes:
+
+>1-4 bits per R/G/B gives horrible machbanding visible in almost any picture.
+
+>5 bits per R/G/B (32768, 65000 colors) gives visible machbanding
+
+>color-gradient picture has _almost_ no machbanding. This color-resolution is 
+
+>see some small machbanding on the smooth color-gradient picture, but all in all,
+>There _ARE_ situiations where you get visible mach-banding even in
+>a 24 bit card. If
+>you create a very smooth color gradient of dark-green-white-yellow
+>or something and turn
+>up the contrast on the monitor, you will probably see some mach-banding.
+
+    While I don't mean to damn Henrik's attempt to be helpful here,
+he's using a common misconception that should be corrected.
+
+    Mach banding will occur for any image.  It is not the color
+quantization you see when you don't have enough bits.  It is the
+human eye's response to transitions or edges between intensities.
+The result is that colors near the transistion look brighter on
+the brighter side and darker on the darker side.
+
+--Andre
+
+-- 
+             Andre Yew andrey@cco.caltech.edu (131.215.139.2)
+
+From: oehler@picard.cs.wisc.edu (Eric Oehler)
+Subject: Translating TTTDDD to DXF or Swiv3D.
+
+I am a Mac-user when it comes to graphics (that's what I own software and hardware for) and
+I've recently come across a large number of TTTDDD format modeling databases.  Is there any
+software, mac or unix, for translating those to something I could use, like DXF?  Please
+reply via email.
+
+Thanx.
+Eric Oehler
+oehler@picard.cs.wisc.edu
+
+From: alex@talus.msk.su (Alex Kolesov)
+Subject: Help on RenderMan language wanted!
+
+Hello everybody !
+
+If you are using PIXAR'S RenderMan 3D scene description language for creating 3D worlds, please, help me. 
+
+I'm using RenderMan library on my NeXT but there is no documentation about NeXTSTEP version of RenderMan available. I can create very complicated scenes and render them using surface shaders, 
+but I can not bring them to life by applying shadows and reflections.
+
+As far as I understand I have to define environmental and shadows maps to produce reflections and shadows, but I do not know how to use them.
+
+Any advises or simple RIB or C examples will be appreciated.
+Thanks in advance...
+
+---
+Alex Kolesov                             Moscow, Russia.
+Talus Imaging & Communications Corporation
+e-mail: <alex@talus.msk.su> 		(NeXT mail accepted)  			   
+.   
+
+From: rowlands@pocomoco.NoSubdomain.NoDomain (Jon Rowlands)
+Subject: Re: More gray levels out of the screen
+
+In article <1pp991$t63@cc.tut.fi>, jk87377@lehtori.cc.tut.fi (Kouhia Juhana)
+writes:
+>In article <1993Apr5.040819.14943@kpc.com> hollasch@kpc.com (Steve
+>Hollasch) writes:
+>>
+>>    I think you're proposal would work to get an extra one, maybe two extra
+>>bits of color resolution.  However, if you had a display that chould do only
+>>zero or full intensity for each primary, I don't think you'd get great
+>>equivalent 24-bit photographs.
+>
+>I have not suggested to do so; I wrote about problems, and the problem
+>were clearly visible with 7 bit b&w images; not to mention 24 bit images.
+
+[ description of experiment deleted ]
+
+>If the 1 bit images are viewed quickly and in sync with screen,
+>then 100 intensities could be better than we have -- I dunno.
+
+[ more deleted ]
+
+>In any case, getting black color with slow machines is problem.
+>I could try it on our 8 bit screens but I don't know how to
+>render pixels with X in constant time. I recall our double buffer
+>has other image color and one b&w -- that doesn't help either.
+>Maybe I should dump photos to screen with low level code; how?
+
+A few years ago a friend and I took some 256 grey-level photos from
+a 1 bit Mac Plus screen using this method. Displaying all 256 levels
+synchronized to the 60Hz display took about 10 seconds. After
+experimenting with different aperture settings and screen
+brightnesses we found a range that worked well, giving respectable
+contrast. The quality of the images was pretty good. There were no
+visible contrast bands.
+
+To minimize the exposure time the display program built 255
+different 1 bit frames. The first contained a dot only for pixels
+that had value 255, the second only for pixels that had value 254,
+etc. These frames were stored using a sparse data structure that was
+very fast to 'or' onto the screen in sequence. Creating these
+frames sometimes took 5-10 minutes on that old Mac, but the camera
+shutter was closed during that time anyway. And yes, we wrote
+directly to the screen memory. Mea culpa.
+
+Our biggest problem was that small images were displayed in the
+top left corner of the screen instead of the center. It took
+an extra week to have the film developed and printed, because the
+processors took the trouble to manually move the all images into
+the center of the print. Who'd have guessed?
+
+regards,
+Jon Rowlands
+
+From: sloan@cis.uab.edu (Kenneth Sloan)
+Subject: Re: More gray levels out of the screen
+
+In article <C51C4r.BtG@csc.ti.com> rowlands@hc.ti.com (Jon Rowlands) writes:
+>
+>A few years ago a friend and I took some 256 grey-level photos from
+>a 1 bit Mac Plus screen using this method. Displaying all 256 levels
+>synchronized to the 60Hz display took about 10 seconds.
+
+Why didn't you create 8 grey-level images, and display them for
+1,2,4,8,16,32,64,128... time slices?
+
+This requires the same total exposure time, and the same precision in
+timing, but drastically reduces the image-preparation time, no?
+
+
+
+
+
+
+-- 
+Kenneth Sloan                   Computer and Information Sciences
+sloan@cis.uab.edu               University of Alabama at Birmingham
+(205) 934-2213                  115A Campbell Hall, UAB Station 
+(205) 934-5473 FAX              Birmingham, AL 35294-1170

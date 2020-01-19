@@ -1,5 +1,7 @@
 package wedt
 
+import java.io.{ByteArrayOutputStream, ObjectOutputStream}
+
 import org.apache.spark.ml.{Estimator, PipelineStage, Predictor, Transformer}
 import org.apache.spark.ml.classification._
 import org.apache.spark.ml.evaluation.{Evaluator, MulticlassClassificationEvaluator}
@@ -8,7 +10,7 @@ import org.apache.spark.ml.tuning.{CrossValidator, CrossValidatorModel}
 import org.apache.spark.sql.{DataFrame, Dataset}
 import org.apache.spark.sql.types.{DoubleType, StructField, StructType}
 import wedt.TextPipeline
-import wedt.WEDT.{firstLevelLabelsMapping, sqlContext}
+import wedt.WEDT.{firstLevelLabelsMapping, sparkContext, sqlContext}
 
 class MultilayerClassifier(firstLevelOvrClassifier: OneVsRest,
                            secondLevelOvrClassifiers: List[OneVsRest],
@@ -28,24 +30,28 @@ class MultilayerClassifier(firstLevelOvrClassifier: OneVsRest,
 
   override def fit(df: Dataset[_]): MultilayerClassificationModel = {
 
+    log.info(s"fit: got df of ${df.count} rows")
+
     val firstLevelDataset = df.withColumnRenamed("firstLevelLabelValue", "label")
     val secondLevelDataset = df.withColumnRenamed("secondLevelLabelValue", "label")
 
     val pm = firstLevelOvrClassifier.extractParamMap()
 
+    log.info("fitting 1 level")
     val firstLevelClassifier: CrossValidatorModel =
-    new CrossValidator()
-      .setEstimator(firstLevelOvrClassifier)
-      .setEvaluator(new MulticlassClassificationEvaluator())
-      .setNumFolds(5)
-      .setEstimatorParamMaps(Array(pm))
-      .fit(firstLevelDataset)
+      new CrossValidator()
+        .setEstimator(firstLevelOvrClassifier)
+        .setEvaluator(new MulticlassClassificationEvaluator())
+        .setNumFolds(5)
+        .setEstimatorParamMaps(Array(pm))
+        .fit(firstLevelDataset)
 
     val secondLevelClassifiers: Map[Double, CrossValidatorModel] = firstLevelLabelsMapping.values
       .zip(secondLevelOvrClassifiers)
       .map(e => (e._1 -> df.where($"firstLevelLabelValue" <=> e._1), e._2))
       .map(e => {
         val ovrClassifier = e._2
+        log.info("fitting 2nd level: " + e._1._1)
         val cv = new CrossValidator()
           .setEstimator(ovrClassifier)
           .setEvaluator(new MulticlassClassificationEvaluator())

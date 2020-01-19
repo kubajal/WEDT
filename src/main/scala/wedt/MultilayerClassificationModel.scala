@@ -22,6 +22,8 @@ class MultilayerClassificationModel(_uid: String,
   override def transform(dataset: Dataset[_]): DataFrame = {
     val firstLevelDf = firstLevelClassifier.transform(dataset)
 
+    log.info(s"transform: got dataset of ${dataset.count} rows")
+
     val secondLevelDf = firstLevelLabelsMapping.values
       .map(e => (e, firstLevelDf
         .where($"firstLevelLabelValue" <=> e)))
