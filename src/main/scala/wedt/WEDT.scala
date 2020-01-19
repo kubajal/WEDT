@@ -4,18 +4,19 @@ import java.util.Calendar
 
 import org.apache.log4j.Logger
 import org.apache.spark.ml.Pipeline
-import org.apache.spark.ml.classification.{LogisticRegression, MultilayerPerceptronClassifier, NaiveBayes, OneVsRest}
+import org.apache.spark.ml.classification._
 import org.apache.spark.ml.evaluation.MulticlassClassificationEvaluator
 import org.apache.spark.ml.feature._
 import org.apache.spark.ml.param.ParamMap
 import org.apache.spark.ml.tuning.CrossValidator
 import org.apache.spark.rdd.RDD
+import org.apache.spark.sql.DataFrame
 import org.apache.spark.{SparkConf, SparkContext}
 import wedt.WEDT.firstLevelLabelsMapping
 
 import scala.util.{Failure, Success, Try}
 
-object WEDT extends App with Configuration {
+object WEDT extends Configuration {
   var firstLevelLabelsMapping: Map[String, Double] = _
   var secondLevelLabelsMapping: Map[String, Double] = _
 
@@ -66,99 +67,5 @@ object WEDT extends App with Configuration {
         sparkContext.stop()
         throw e
     }
-  }
-
-  override def main(args: Array[String]): Unit = {
-
-    log.info("Start!")
-
-    import sqlContext.implicits._
-
-    val path = if(args.length == 0) "resources/sport/football/*" else args.head
-//    val path = if(args.length == 0) "resources/sport/football/*" else args.head
-
-    val df = this.prepareRdd(path)
-      .toDF()
-      .withColumnRenamed("text", "features_0")
-
-    val pipeline = new TextPipeline()
-      .fit(df)
-
-    val firstLevelInput = df.withColumnRenamed("firstLevelLabelValue", "label")
-    val secondLevelInput = df.withColumnRenamed("secondLevelLabelValue", "label")
-    val lr = new LogisticRegression()
-    val firstLevelOvrClassifier = new OneVsRest().setClassifier(lr)
-
-    val firstLevelDataset = pipeline.transform(firstLevelInput)
-    val secondLevelDataset = pipeline.transform(secondLevelInput)
-
-    val paramMap = lr.extractParamMap()
-
-    val firstLevelClassifier =
-      new CrossValidator()
-        .setEstimator(firstLevelOvrClassifier)
-        .setEvaluator(new MulticlassClassificationEvaluator())
-        .setNumFolds(5)
-        .setEstimatorParamMaps(Array(paramMap))
-        .fit(firstLevelDataset)
-
-    val secondLevelClassifiers = firstLevelLabelsMapping.values
-      .map(e => e -> df.where($"firstLevelLabelValue" <=> e))
-      .map(e => {
-        val ovrClassifier = new OneVsRest().setClassifier(new LogisticRegression())
-        val cv = new CrossValidator()
-          .setEstimator(ovrClassifier)
-          .setEvaluator(new MulticlassClassificationEvaluator())
-          .setEstimatorParamMaps(Array(paramMap))
-          .setNumFolds(5)
-        e._1 -> cv.fit(secondLevelDataset)
-      }).toMap
-
-    val a = df
-    val aa = a
-      .withColumnRenamed("firstLevelLabelValue", "label")
-      .withColumnRenamed("text", "features_0")
-    val bb = a
-      .withColumnRenamed("secondLevelLabelValue", "label")
-      .withColumnRenamed("text", "features_0")
-
-    val aaa = pipeline
-      .transform(aa)
-    val firstLevel = firstLevelClassifier.transform(aaa)
-
-    log.info("first level: ")
-    firstLevel
-      .drop("features_0")
-      .show(false)
-
-    val secondLevel = firstLevelLabelsMapping.values
-      .map(e => (e, firstLevel
-        .where($"firstLevelLabelValue" <=> e)))
-      .map(e => {
-        log.info("learning 2nd level classifier on class: " + e)
-        secondLevelClassifiers(e._1).transform(e._2
-          .drop("prediction")
-          .drop("rawPrediction")
-          .drop("label")
-          .withColumnRenamed("secondLevelLabelValue", "label"))
-      })
-      .reduce((a, b) => a.union(b))
-
-    log.info("second level: ")
-    secondLevel
-      .drop("features_0")
-      .show(false)
-
-    val accuracyEvaluator = new MulticlassClassificationEvaluator()
-      .setMetricName("accuracy")
-    val precisionEvaluator = new MulticlassClassificationEvaluator()
-      .setMetricName("weightedPrecision")
-    val accuracy = accuracyEvaluator.evaluate(secondLevel)
-    val precision = precisionEvaluator.evaluate(secondLevel)
-    log.info(s"Accuracy  = $accuracy")
-    log.info(s"Precision = $precision")
-
-
-    log.info("Koniec!")
   }
 }
