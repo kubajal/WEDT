@@ -1,31 +1,32 @@
-package wedt.experiment
+package wedt.multiLayer
 
-import org.apache.spark.ml.classification.{NaiveBayes, OneVsRest}
+import org.apache.spark.ml.classification.{LogisticRegression, OneVsRest}
 import org.apache.spark.ml.evaluation.MulticlassClassificationEvaluator
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import wedt._
+import wedt.experiment.DataProvider
 
-class SingleLayerBayesTests extends AnyFlatSpec with Matchers with Configuration {
+class MultilayerLogisticRegressionTests extends AnyFlatSpec with Matchers with Configuration {
 
   sparkContext.setLogLevel("ERROR")
 
   import sqlContext.implicits._
 
-  "NaiveBayes classifier, lambda=0.8" should "handle all classes" in {
+  "LogisticRegression classifier" should "handle four classes" in {
 
     val accuracyEvaluator = new MulticlassClassificationEvaluator()
       .setMetricName("accuracy")
     val precisionEvaluator = new MulticlassClassificationEvaluator()
       .setMetricName("weightedPrecision")
 
-    val slc = new SingleLayerClassifier(
-      new OneVsRest().setClassifier(new NaiveBayes().setSmoothing(0.8)),
-      "bayes-single"
+    val mlc = new MultilayerClassifier(
+      new OneVsRest().setClassifier(new LogisticRegression()),
+      (for {i <- 1 to 20} yield new OneVsRest().setClassifier(new LogisticRegression())).toList,
+      "regression-multi"
     )
-    val trainedModel = new TextPipeline(slc).fit(DataProvider.train)
+    val trainedModel = new TextPipeline(mlc).fit(DataProvider.train)
     val validationResult = trainedModel.transform(DataProvider.validate)
-      .withColumnRenamed("secondLevelLabelValue", "label")
     val accuracy = accuracyEvaluator.evaluate(validationResult)
     val precision = precisionEvaluator.evaluate(validationResult)
     validationResult.map(e => (
@@ -41,34 +42,33 @@ class SingleLayerBayesTests extends AnyFlatSpec with Matchers with Configuration
     ReadWriteToFileUtils.saveModel(trainedModel)
   }
 
-//  "NaiveBayes classifier, lambda=0.8" should "handle four classes" in {
+//  "Classifier" should "handle all classes" in {
 //
 //    val accuracyEvaluator = new MulticlassClassificationEvaluator()
 //      .setMetricName("accuracy")
-//
 //    val precisionEvaluator = new MulticlassClassificationEvaluator()
 //      .setMetricName("weightedPrecision")
 //
-//    val rdd = WEDT.prepareRdd("resources/tests/*")
+//    val rdd = WEDT.prepareRdd("resources/20-newsgroups/*")
 //    rdd.collect
 //      .foreach(e => {
 //        e.firstLevelLabelValue should be (WEDT.firstLevelLabelsMapping(e.firstLevelLabel))
 //        e.secondLevelLabelValue should be (WEDT.secondLevelLabelsMapping(e.secondLevelLabel))
 //      })
 //
-//    val Array(train, validate) = rdd
+//    val Array(train, validate, rest) = rdd
 //      .toDF()
 //      .withColumnRenamed("text", "features_0")
-//      .randomSplit(Array(0.7, 0.3))
+//      .randomSplit(Array(0.1, 0.1, 0.8))
 //
-//
-//    val slc = new SingleLayerClassifier(
-//      new OneVsRest().setClassifier(new NaiveBayes().setSmoothing(0.8)),
-//      "bayes"
+//    val mlc = new MultilayerClassifier(
+//      new OneVsRest().setClassifier(new LogisticRegression()),
+//      (for {i <- 1 to 20} yield new OneVsRest().setClassifier(new LogisticRegression())).toList,
+//      "mlc"
 //    )
-//    val trainedModel = new TextPipeline(slc).fit(train)
+//
+//    val trainedModel = new TextPipeline(mlc).fit(train)
 //    val validationResult = trainedModel.transform(validate)
-//      .withColumnRenamed("secondLevelLabelValue", "label")
 //    val accuracy = accuracyEvaluator.evaluate(validationResult)
 //    val precision = precisionEvaluator.evaluate(validationResult)
 //    validationResult.map(e => (
