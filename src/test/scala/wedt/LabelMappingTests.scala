@@ -12,7 +12,7 @@ class LabelMappingTests extends AnyFlatSpec with Matchers with Configuration {
    "Text classifier" should "split text data from a file into single e-mails" in {
 
     val textClassifier = new OneVsRest().setClassifier(new LogisticRegression())
-    val rdd = WEDT.prepareRdd("resources/tests/*")
+    val rdd = WEDT.prepareRdd("src/main/resources/tests/*")
     val result = rdd.collect
     val counts = result
       .groupBy(e => e.firstLevelLabelValue)
@@ -25,7 +25,7 @@ class LabelMappingTests extends AnyFlatSpec with Matchers with Configuration {
 
   "Each row" should "be correctly labeled according to path" in {
 
-    val rdd = WEDT.prepareRdd("resources/tests/*")
+    val rdd = WEDT.prepareRdd("src/main/resources/tests/*")
     rdd.collect
       .foreach(e => {
         e.firstLevelLabelValue should be (WEDT.firstLevelLabelsMapping(e.firstLevelLabel))
