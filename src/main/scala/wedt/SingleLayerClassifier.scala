@@ -9,7 +9,7 @@ import org.apache.spark.sql.Dataset
 import org.apache.spark.sql.types.StructType
 import wedt.WEDT.{firstLevelLabelsMapping, sqlContext}
 
-class SingleLayerClassifier(firstLevelOvrClassifier: OneVsRest,
+class SingleLayerClassifier(firstLevelOvrClassifier: Estimator[_],
                             _uid: String)
   extends Estimator[CrossValidatorModel] {
 

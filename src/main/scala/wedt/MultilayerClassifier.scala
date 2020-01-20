@@ -2,18 +2,17 @@ package wedt
 
 import java.io.{ByteArrayOutputStream, ObjectOutputStream}
 
-import org.apache.spark.ml.{Estimator, PipelineStage, Predictor, Transformer}
+import org.apache.spark.ml._
 import org.apache.spark.ml.classification._
 import org.apache.spark.ml.evaluation.{Evaluator, MulticlassClassificationEvaluator}
 import org.apache.spark.ml.param.ParamMap
 import org.apache.spark.ml.tuning.{CrossValidator, CrossValidatorModel}
 import org.apache.spark.sql.{DataFrame, Dataset}
 import org.apache.spark.sql.types.{DoubleType, StructField, StructType}
-import wedt.TextPipeline
 import wedt.WEDT.{firstLevelLabelsMapping, sparkContext, sqlContext}
 
-class MultilayerClassifier(firstLevelOvrClassifier: OneVsRest,
-                           secondLevelOvrClassifiers: List[OneVsRest],
+class MultilayerClassifier[+M <: Estimator[_]](firstLevelOvrClassifier: M,
+                           secondLevelOvrClassifiers: List[M],
                            _uid: String)
   extends Estimator[MultilayerClassificationModel] {
 

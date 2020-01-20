@@ -10,6 +10,8 @@ class Experiment extends AnyFlatSpec with Matchers with Configuration {
 
   sparkContext.setLogLevel("ERROR")
 
+  val DataProvider =  new DataProvider("resources/20-newsgroups/*", 0.1, 0.1)
+
   import sqlContext.implicits._
 
   "LogisticRegression single classifier" should "handle all classes" in {
@@ -23,8 +25,8 @@ class Experiment extends AnyFlatSpec with Matchers with Configuration {
       new OneVsRest().setClassifier(new LogisticRegression()),
       "regression-single"
     )
-    val trainedModel = new TextPipeline(slc).fit(DataProvider.train)
-    val validationResult = trainedModel.transform(DataProvider.validate)
+    val trainedModel = new TextPipeline(slc).fit(DataProvider.trainDf)
+    val validationResult = trainedModel.transform(DataProvider.validateDf)
       .withColumnRenamed("secondLevelLabelValue", "label")
     val accuracy = accuracyEvaluator.evaluate(validationResult)
     val precision = precisionEvaluator.evaluate(validationResult)
@@ -52,8 +54,8 @@ class Experiment extends AnyFlatSpec with Matchers with Configuration {
       new OneVsRest().setClassifier(new NaiveBayes().setSmoothing(0.8)),
       "bayes-single"
     )
-    val trainedModel = new TextPipeline(slc).fit(DataProvider.train)
-    val validationResult = trainedModel.transform(DataProvider.validate)
+    val trainedModel = new TextPipeline(slc).fit(DataProvider.trainDf)
+    val validationResult = trainedModel.transform(DataProvider.validateDf)
       .withColumnRenamed("secondLevelLabelValue", "label")
     val accuracy = accuracyEvaluator.evaluate(validationResult)
     val precision = precisionEvaluator.evaluate(validationResult)
@@ -82,8 +84,8 @@ class Experiment extends AnyFlatSpec with Matchers with Configuration {
       (for {i <- 1 to 20} yield new OneVsRest().setClassifier(new LogisticRegression())).toList,
       "regression-multi"
     )
-    val trainedModel = new TextPipeline(mlc).fit(DataProvider.train)
-    val validationResult = trainedModel.transform(DataProvider.validate)
+    val trainedModel = new TextPipeline(mlc).fit(DataProvider.trainDf)
+    val validationResult = trainedModel.transform(DataProvider.validateDf)
     val accuracy = accuracyEvaluator.evaluate(validationResult)
     val precision = precisionEvaluator.evaluate(validationResult)
     validationResult.map(e => (
@@ -110,8 +112,8 @@ class Experiment extends AnyFlatSpec with Matchers with Configuration {
       (for {i <- 1 to 20} yield new OneVsRest().setClassifier(new NaiveBayes().setSmoothing(0.8))).toList,
       "bayes-multi"
     )
-    val trainedModel = new TextPipeline(mlc).fit(DataProvider.train)
-    val validationResult = trainedModel.transform(DataProvider.validate)
+    val trainedModel = new TextPipeline(mlc).fit(DataProvider.trainDf)
+    val validationResult = trainedModel.transform(DataProvider.validateDf)
     val accuracy = accuracyEvaluator.evaluate(validationResult)
     val precision = precisionEvaluator.evaluate(validationResult)
     validationResult.map(e => (

@@ -9,8 +9,7 @@ import org.apache.spark.ml.param.ParamMap
 import org.apache.spark.ml.tuning.{CrossValidator, CrossValidatorModel}
 import org.apache.spark.sql.types.{DoubleType, StructField, StructType}
 import org.apache.spark.sql.{DataFrame, Dataset}
-import wedt.TextPipeline
-import wedt.WEDT.{firstLevelLabelsMapping, log, sqlContext}
+  import wedt.WEDT.{firstLevelLabelsMapping, log, sqlContext}
 
 class MultilayerClassificationModel(_uid: String,
                                     firstLevelClassifier: CrossValidatorModel,
@@ -21,20 +20,23 @@ class MultilayerClassificationModel(_uid: String,
 
   override def transform(dataset: Dataset[_]): DataFrame = {
     val firstLevelDf = firstLevelClassifier.transform(dataset)
+      .drop("prediction")
+      .drop("rawPrediction")
+      .drop("probability")
+      .drop("label")
+      .withColumnRenamed("secondLevelLabelValue", "label")
+      .persist
 
     log.info(s"transform: got dataset of ${dataset.count} rows")
+
+    firstLevelDf.show(false)
 
     val secondLevelDf = firstLevelLabelsMapping.values
       .map(e => (e, firstLevelDf
         .where($"firstLevelLabelValue" <=> e)))
       .map(e => {
         log.info("classifying 2nd level: " + e)
-        secondLevelClassifiers(e._1).transform(e._2
-          .drop("prediction")
-          .drop("rawPrediction")
-          .drop("label")
-          .withColumnRenamed("secondLevelLabelValue", "label"))
-      })
+        secondLevelClassifiers(e._1).transform(e._2)})
       .reduce((a, b) => a.union(b))
 
     secondLevelDf

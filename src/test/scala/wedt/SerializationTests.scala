@@ -45,7 +45,5 @@ class SerializationTests extends AnyFlatSpec with Matchers with Configuration {
     val path = ReadWriteToFileUtils.saveModel(trainedModel)
     val loadedModel = ReadWriteToFileUtils.loadModel(path)
     val result = loadedModel.transform(validate)
-    import Implicits._
-    result.customShow()
-  }
+    }
 }

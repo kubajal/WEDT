@@ -1,32 +1,32 @@
-package wedt.multiLayer
+package wedt
 
-import org.apache.spark.ml.classification.{NaiveBayes, OneVsRest}
+import org.apache.spark.ml.classification.{LogisticRegression, OneVsRest}
 import org.apache.spark.ml.evaluation.MulticlassClassificationEvaluator
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
-import wedt._
 
-class MultilayerBayesTests extends AnyFlatSpec with Matchers with Configuration {
+class SingleLayerRegressionTests extends AnyFlatSpec with Matchers with Configuration {
 
   sparkContext.setLogLevel("ERROR")
 
   import sqlContext.implicits._
 
-  val DataProvider =  new DataProvider("resources/20-newsgroups/*", 0.1, 0.1)
+  val DataProvider =  new DataProvider("resources/20-newsgroups/*", 0.8, 0.2)
 
-  "NaiveBayes classifier, lambda=0.8" should "handle all classes" in {
+  "LogisticRegression single classifier, lambda=0.8" should "handle all classes" in {
 
     val accuracyEvaluator = new MulticlassClassificationEvaluator()
       .setMetricName("accuracy")
     val precisionEvaluator = new MulticlassClassificationEvaluator()
       .setMetricName("weightedPrecision")
-    val mlc = new MultilayerClassifier(
-      new OneVsRest().setClassifier(new NaiveBayes().setSmoothing(0.8)),
-      (for {i <- 1 to 20} yield new OneVsRest().setClassifier(new NaiveBayes().setSmoothing(0.8))).toList,
-      "bayes-multi"
+
+    val slc = new SingleLayerClassifier(
+      new OneVsRest().setClassifier(new LogisticRegression()),
+      "regression-single"
     )
-    val trainedModel = new TextPipeline(mlc).fit(DataProvider.trainDf)
+    val trainedModel = new TextPipeline(slc).fit(DataProvider.trainDf)
     val validationResult = trainedModel.transform(DataProvider.validateDf)
+      .withColumnRenamed("secondLevelLabelValue", "label")
     val accuracy = accuracyEvaluator.evaluate(validationResult)
     val precision = precisionEvaluator.evaluate(validationResult)
     validationResult.map(e => (
@@ -46,6 +46,7 @@ class MultilayerBayesTests extends AnyFlatSpec with Matchers with Configuration 
 //
 //    val accuracyEvaluator = new MulticlassClassificationEvaluator()
 //      .setMetricName("accuracy")
+//
 //    val precisionEvaluator = new MulticlassClassificationEvaluator()
 //      .setMetricName("weightedPrecision")
 //
@@ -61,13 +62,14 @@ class MultilayerBayesTests extends AnyFlatSpec with Matchers with Configuration 
 //      .withColumnRenamed("text", "features_0")
 //      .randomSplit(Array(0.7, 0.3))
 //
-//    val mlc = new MultilayerClassifier(
-//      new OneVsRest().setClassifier(new NaiveBayes()),
-//      (for {i <- 1 to 20} yield new OneVsRest().setClassifier(new NaiveBayes())).toList,
-//      "mlc"
+//
+//    val slc = new SingleLayerClassifier(
+//      new OneVsRest().setClassifier(new NaiveBayes().setSmoothing(0.8)),
+//      "bayes"
 //    )
-//    val trainedModel = new TextPipeline(mlc).fit(train)
+//    val trainedModel = new TextPipeline(slc).fit(train)
 //    val validationResult = trainedModel.transform(validate)
+//      .withColumnRenamed("secondLevelLabelValue", "label")
 //    val accuracy = accuracyEvaluator.evaluate(validationResult)
 //    val precision = precisionEvaluator.evaluate(validationResult)
 //    validationResult.map(e => (

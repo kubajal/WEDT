@@ -2,15 +2,15 @@ package wedt
 
 import org.apache.spark.rdd.RDD
 
-object DataProvider extends Configuration {
+class DataProvider(path: String, train: Double, validate: Double) extends Configuration {
 
   import sqlContext.implicits._
 
-  val rdd: RDD[TaggedText] = WEDT.prepareRdd("src/main/resources/manual-tests/*")
+  val rdd: RDD[TaggedText] = WEDT.prepareRdd(path + "/*")
 
-  val Array(train, validate, rest) = rdd
+  val Array(trainDf, validateDf, restDf) = rdd
     .toDF()
     .withColumnRenamed("text", "features_0")
-    .randomSplit(Array(0.8, 0.2, 0.0))
+    .randomSplit(Array(train, validate, 1 - train - validate))
 
 }

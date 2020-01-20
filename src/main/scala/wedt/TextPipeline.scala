@@ -13,7 +13,7 @@ class TextPipeline(mlc: Estimator[_]) extends Pipeline {
     .setInputCol("features_1")
   private val punctuationRemover = new PunctuationRemover("punctuationRemover")
     .setInputCol("features_2")
-  private val stemmer = new PorterStemmerWrapper("stemmer")
+  val stemmer = new PorterStemmerWrapper("stemmer")
     .setInputCol("features_3")
   private val tf = new HashingTF()
     .setInputCol("features_4")

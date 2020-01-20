@@ -5,13 +5,14 @@ import org.apache.spark.ml.evaluation.MulticlassClassificationEvaluator
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import wedt._
-import wedt.experiment.DataProvider
 
 class MultilayerLogisticRegressionTests extends AnyFlatSpec with Matchers with Configuration {
 
   sparkContext.setLogLevel("ERROR")
 
   import sqlContext.implicits._
+
+  val DataProvider =  new DataProvider("resources/20-newsgroups/*", 0.1, 0.1)
 
   "LogisticRegression classifier" should "handle four classes" in {
 
@@ -25,8 +26,8 @@ class MultilayerLogisticRegressionTests extends AnyFlatSpec with Matchers with C
       (for {i <- 1 to 20} yield new OneVsRest().setClassifier(new LogisticRegression())).toList,
       "regression-multi"
     )
-    val trainedModel = new TextPipeline(mlc).fit(DataProvider.train)
-    val validationResult = trainedModel.transform(DataProvider.validate)
+    val trainedModel = new TextPipeline(mlc).fit(DataProvider.trainDf)
+    val validationResult = trainedModel.transform(DataProvider.validateDf)
     val accuracy = accuracyEvaluator.evaluate(validationResult)
     val precision = precisionEvaluator.evaluate(validationResult)
     validationResult.map(e => (

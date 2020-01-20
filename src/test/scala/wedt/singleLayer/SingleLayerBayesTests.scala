@@ -5,13 +5,14 @@ import org.apache.spark.ml.evaluation.MulticlassClassificationEvaluator
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import wedt._
-import wedt.experiment.DataProvider
 
 class SingleLayerBayesTests extends AnyFlatSpec with Matchers with Configuration {
 
   sparkContext.setLogLevel("ERROR")
 
   import sqlContext.implicits._
+
+  val DataProvider =  new DataProvider("resources/tests/*", 0.1, 0.1)
 
   "NaiveBayes classifier, lambda=0.8" should "handle all classes" in {
 
@@ -21,11 +22,12 @@ class SingleLayerBayesTests extends AnyFlatSpec with Matchers with Configuration
       .setMetricName("weightedPrecision")
 
     val slc = new SingleLayerClassifier(
-      new OneVsRest().setClassifier(new NaiveBayes().setSmoothing(0.8)),
+      new NaiveBayes().setSmoothing(0.8),
       "bayes-single"
     )
-    val trainedModel = new TextPipeline(slc).fit(DataProvider.train)
-    val validationResult = trainedModel.transform(DataProvider.validate)
+    val pipeline = new TextPipeline(slc)
+    val trainedModel = pipeline.fit(DataProvider.trainDf)
+    val validationResult = trainedModel.transform(DataProvider.validateDf)
       .withColumnRenamed("secondLevelLabelValue", "label")
     val accuracy = accuracyEvaluator.evaluate(validationResult)
     val precision = precisionEvaluator.evaluate(validationResult)
