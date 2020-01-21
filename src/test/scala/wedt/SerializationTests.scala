@@ -2,6 +2,7 @@ package wedt
 
 import java.nio.file.Files
 
+import org.apache.spark.ml.PipelineModel
 import org.apache.spark.ml.classification.{LogisticRegression, NaiveBayes, OneVsRest}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
@@ -12,19 +13,14 @@ class SerializationTests extends AnyFlatSpec with Matchers with Configuration {
 
   import sqlContext.implicits._
 
-  "Serialization" should "work" in {
+  "Serialization" should "work on PipelineModel" in {
 
     val rdd = WEDT.prepareRdd("resources/tests/*")
-    rdd.collect
-      .foreach(e => {
-        e.firstLevelLabelValue should be (WEDT.firstLevelLabelsMapping(e.firstLevelLabel))
-        e.secondLevelLabelValue should be (WEDT.secondLevelLabelsMapping(e.secondLevelLabel))
-      })
 
     val Array(train, validate) = rdd
       .toDF()
       .withColumnRenamed("text", "features_0")
-      .randomSplit(Array(0.7, 0.3))
+      .randomSplit(Array(0.8, 0.2))
 
     val mlc = new MultilayerClassifier(
       new OneVsRest().setClassifier(new NaiveBayes()),
@@ -42,8 +38,26 @@ class SerializationTests extends AnyFlatSpec with Matchers with Configuration {
       e.getAs[Double]("label")))
       .show(numRows = 100, truncate = false)
 
-    val path = ReadWriteToFileUtils.saveModel(trainedModel)
-    val loadedModel = ReadWriteToFileUtils.loadModel(path)
+    val path = ReadWriteToFileUtils.saveModel(trainedModel, "tmp/" + trainedModel.stages.last.uid)
+    val loadedModel = ReadWriteToFileUtils.loadModel[PipelineModel](path)
     val result = loadedModel.transform(validate)
+  }
+
+
+  "Serialization" should "work on other serializable classes" in {
+
+    class Test(val num: Int, val str: String, val d: Double) extends Serializable {
+      def numTest() = num + 1
+      def strTest() = str + "test"
+      def dTest() = d + 0.5
     }
+
+    val test = new Test(1, "a", 1.0)
+
+    val path = ReadWriteToFileUtils.saveModel(test, "tmp/" + "test.obj")
+    val loadedTest = ReadWriteToFileUtils.loadModel[Test](path)
+    assert(loadedTest.numTest() == 2)
+    assert(loadedTest.strTest() == "atest")
+    assert(loadedTest.dTest() == 1.5)
+  }
 }

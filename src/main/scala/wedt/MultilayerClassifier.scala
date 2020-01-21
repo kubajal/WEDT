@@ -47,7 +47,7 @@ class MultilayerClassifier[+M <: Estimator[_]](firstLevelOvrClassifier: M,
 
     val secondLevelClassifiers: Map[Double, CrossValidatorModel] = firstLevelLabelsMapping.values
       .zip(secondLevelOvrClassifiers)
-      .map(e => (e._1 -> df.where($"firstLevelLabelValue" <=> e._1), e._2))
+      .map(e => (e._1 -> secondLevelDataset.where($"firstLevelLabelValue" <=> e._1), e._2))
       .map(e => {
         val ovrClassifier = e._2
         log.info("fitting 2nd level: " + e._1._1)

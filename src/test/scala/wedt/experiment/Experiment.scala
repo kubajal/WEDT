@@ -2,6 +2,8 @@ package wedt.experiment
 
 import org.apache.spark.ml.classification.{LogisticRegression, NaiveBayes, OneVsRest}
 import org.apache.spark.ml.evaluation.MulticlassClassificationEvaluator
+import org.apache.spark.mllib.linalg.Matrix
+import org.apache.spark.mllib.evaluation.MulticlassMetrics
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import wedt._
@@ -10,106 +12,60 @@ class Experiment extends AnyFlatSpec with Matchers with Configuration {
 
   sparkContext.setLogLevel("ERROR")
 
-  val DataProvider =  new DataProvider("resources/20-newsgroups/*", 0.1, 0.1)
+  val DataProvider =  new DataProvider("resources/20-newsgroups/", 0.001, 0.001)
 
+  var metrics1: MulticlassMetrics = null
+  var metrics2: MulticlassMetrics = null
   import sqlContext.implicits._
 
-  "LogisticRegression single classifier" should "handle all classes" in {
-
-    val accuracyEvaluator = new MulticlassClassificationEvaluator()
-      .setMetricName("accuracy")
-    val precisionEvaluator = new MulticlassClassificationEvaluator()
-      .setMetricName("weightedPrecision")
-
-    val slc = new SingleLayerClassifier(
-      new OneVsRest().setClassifier(new LogisticRegression()),
-      "regression-single"
-    )
-    val trainedModel = new TextPipeline(slc).fit(DataProvider.trainDf)
-    val validationResult = trainedModel.transform(DataProvider.validateDf)
-      .withColumnRenamed("secondLevelLabelValue", "label")
-    val accuracy = accuracyEvaluator.evaluate(validationResult)
-    val precision = precisionEvaluator.evaluate(validationResult)
-    validationResult.map(e => (
-      e.getAs[String]("features_0")
-        .take(100)
-        .replace("\n", "")
-        .replace("\r", ""),
-      e.getAs[Double]("prediction"),
-      e.getAs[Double]("label")))
-      .show(numRows = 100, truncate = false)
-    log.info(s"Accuracy  = $accuracy")
-    log.info(s"Precision = $precision")
-    ReadWriteToFileUtils.saveModel(trainedModel)
-  }
-
-  "NaiveBayes classifier, lambda=0.8" should "handle all classes" in {
-
-    val accuracyEvaluator = new MulticlassClassificationEvaluator()
-      .setMetricName("accuracy")
-    val precisionEvaluator = new MulticlassClassificationEvaluator()
-      .setMetricName("weightedPrecision")
-
-    val slc = new SingleLayerClassifier(
-      new OneVsRest().setClassifier(new NaiveBayes().setSmoothing(0.8)),
-      "bayes-single"
-    )
-    val trainedModel = new TextPipeline(slc).fit(DataProvider.trainDf)
-    val validationResult = trainedModel.transform(DataProvider.validateDf)
-      .withColumnRenamed("secondLevelLabelValue", "label")
-    val accuracy = accuracyEvaluator.evaluate(validationResult)
-    val precision = precisionEvaluator.evaluate(validationResult)
-    validationResult.map(e => (
-      e.getAs[String]("features_0")
-        .take(100)
-        .replace("\n", "")
-        .replace("\r", ""),
-      e.getAs[Double]("prediction"),
-      e.getAs[Double]("label")))
-      .show(numRows = 100, truncate = false)
-    log.info(s"Accuracy  = $accuracy")
-    log.info(s"Precision = $precision")
-    ReadWriteToFileUtils.saveModel(trainedModel)
-  }
-
-  "LogisticRegression multi classifier" should "handle four classes" in {
-
-    val accuracyEvaluator = new MulticlassClassificationEvaluator()
-      .setMetricName("accuracy")
-    val precisionEvaluator = new MulticlassClassificationEvaluator()
-      .setMetricName("weightedPrecision")
-
-    val mlc = new MultilayerClassifier(
-      new OneVsRest().setClassifier(new LogisticRegression()),
-      (for {i <- 1 to 20} yield new OneVsRest().setClassifier(new LogisticRegression())).toList,
-      "regression-multi"
-    )
-    val trainedModel = new TextPipeline(mlc).fit(DataProvider.trainDf)
-    val validationResult = trainedModel.transform(DataProvider.validateDf)
-    val accuracy = accuracyEvaluator.evaluate(validationResult)
-    val precision = precisionEvaluator.evaluate(validationResult)
-    validationResult.map(e => (
-      e.getAs[String]("features_0")
-        .take(100)
-        .replace("\n", "")
-        .replace("\r", ""),
-      e.getAs[Double]("prediction"),
-      e.getAs[Double]("label")))
-      .show(numRows = 100, truncate = false)
-    log.info(s"Accuracy  = $accuracy")
-    log.info(s"Precision = $precision")
-    ReadWriteToFileUtils.saveModel(trainedModel)
-  }
+//  "NaiveBayes single classifier, lambda=0.8" should "handle all classes" in {
+//
+//    log.info(s"Starting Bayes single experiment")
+//    val accuracyEvaluator = new MulticlassClassificationEvaluator()
+//      .setMetricName("accuracy")
+//    val precisionEvaluator = new MulticlassClassificationEvaluator()
+//      .setMetricName("weightedPrecision")
+//
+//    val slc = new SingleLayerClassifier(
+//      new NaiveBayes().setSmoothing(0.8),
+//      "bayes-single"
+//    )
+//    val pipeline = new TextPipeline(slc)
+//    val trainedModel = pipeline.fit(DataProvider.trainDf)
+//    val validationResult = trainedModel.transform(DataProvider.validateDf)
+//      .withColumnRenamed("secondLevelLabelValue", "label")
+//    val accuracy = accuracyEvaluator.evaluate(validationResult)
+//    val precision = precisionEvaluator.evaluate(validationResult)
+//    validationResult.map(e => (
+//      e.getAs[String]("features_0")
+//        .take(100)
+//        .replace("\n", "")
+//        .replace("\r", ""),
+//      e.getAs[Double]("prediction"),
+//      e.getAs[Double]("label")))
+//      .show(numRows = 100, truncate = false)
+//    ReadWriteToFileUtils.saveModel(trainedModel, "experiment/bayes-single.obj")
+//
+//    metrics1 = new MulticlassMetrics(validationResult.rdd
+//      .map(row => (row.getAs[Double]("prediction"), row.getAs[Double]("label"))))
+//    log.info(s"Confussion matrix (Bayes single):")
+//    println(metrics1.confusionMatrix)
+//    log.info(s"Accuracy  = $accuracy")
+//    log.info(s"Precision = $precision")
+////    assert(accuracy == metrics1.accuracy)
+////    assert(precision == metrics1.precision)
+//  }
 
   "NaiveBayes multi classifier, lambda=0.8" should "handle all classes" in {
 
+    log.info(s"Starting Bayes multi experiment")
     val accuracyEvaluator = new MulticlassClassificationEvaluator()
       .setMetricName("accuracy")
     val precisionEvaluator = new MulticlassClassificationEvaluator()
       .setMetricName("weightedPrecision")
     val mlc = new MultilayerClassifier(
-      new OneVsRest().setClassifier(new NaiveBayes().setSmoothing(0.8)),
-      (for {i <- 1 to 20} yield new OneVsRest().setClassifier(new NaiveBayes().setSmoothing(0.8))).toList,
+      new NaiveBayes().setSmoothing(0.8),
+      (for {i <- 1 to 20} yield new NaiveBayes().setSmoothing(0.8)).toList,
       "bayes-multi"
     )
     val trainedModel = new TextPipeline(mlc).fit(DataProvider.trainDf)
@@ -124,48 +80,23 @@ class Experiment extends AnyFlatSpec with Matchers with Configuration {
       e.getAs[Double]("prediction"),
       e.getAs[Double]("label")))
       .show(numRows = 100, truncate = false)
+    ReadWriteToFileUtils.saveModel(trainedModel, "experiment/bayes-multi.obj")
+
+    metrics2 = new MulticlassMetrics(validationResult.rdd
+      .map(row => (row.getAs[Double]("prediction"), row.getAs[Double]("label"))))
+    log.info(s"Confussion matrix (Bayes multi):")
+    println(metrics2.confusionMatrix.toString(20, 1))
     log.info(s"Accuracy  = $accuracy")
     log.info(s"Precision = $precision")
-    ReadWriteToFileUtils.saveModel(trainedModel)
+//    assert(accuracy == metrics2.accuracy)
+//    assert(precision == metrics2.precision)
   }
 
-//  "NaiveBayes classifier, lambda=0.8" should "handle four classes" in {
-//
-//    val accuracyEvaluator = new MulticlassClassificationEvaluator()
-//      .setMetricName("accuracy")
-//    val precisionEvaluator = new MulticlassClassificationEvaluator()
-//      .setMetricName("weightedPrecision")
-//
-//    val rdd = WEDT.prepareRdd("resources/tests/*")
-//    rdd.collect
-//      .foreach(e => {
-//        e.firstLevelLabelValue should be (WEDT.firstLevelLabelsMapping(e.firstLevelLabel))
-//        e.secondLevelLabelValue should be (WEDT.secondLevelLabelsMapping(e.secondLevelLabel))
-//      })
-//
-//    val Array(train, validate) = rdd
-//      .toDF()
-//      .withColumnRenamed("text", "features_0")
-//      .randomSplit(Array(0.7, 0.3))
-//
-//    val mlc = new MultilayerClassifier(
-//      new OneVsRest().setClassifier(new NaiveBayes()),
-//      (for {i <- 1 to 20} yield new OneVsRest().setClassifier(new NaiveBayes())).toList,
-//      "mlc"
-//    )
-//    val trainedModel = new TextPipeline(mlc).fit(train)
-//    val validationResult = trainedModel.transform(validate)
-//    val accuracy = accuracyEvaluator.evaluate(validationResult)
-//    val precision = precisionEvaluator.evaluate(validationResult)
-//    validationResult.map(e => (
-//      e.getAs[String]("features_0")
-//        .take(100)
-//        .replace("\n", "")
-//        .replace("\r", ""),
-//      e.getAs[Double]("prediction"),
-//      e.getAs[Double]("label")))
-//      .show(numRows = 100, truncate = false)
-//    log.info(s"Accuracy  = $accuracy")
-//    log.info(s"Precision = $precision")
-//  }
+  "MulticlassMetrics" should "be saved" in {
+
+//    ReadWriteToFileUtils.saveModel(
+//        metrics1.confusionMatrix, "experiment/metrics1.obj")
+    ReadWriteToFileUtils.saveModel(
+        metrics2.confusionMatrix, "experiment/metrics2.obj")
+  }
 }

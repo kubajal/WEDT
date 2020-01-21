@@ -39,7 +39,7 @@ class MultilayerBayesTests extends AnyFlatSpec with Matchers with Configuration 
       .show(numRows = 100, truncate = false)
     log.info(s"Accuracy  = $accuracy")
     log.info(s"Precision = $precision")
-    ReadWriteToFileUtils.saveModel(trainedModel)
+//    ReadWriteToFileUtils.saveModel(trainedModel)
   }
 
 //  "NaiveBayes classifier, lambda=0.8" should "handle four classes" in {

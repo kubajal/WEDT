@@ -26,7 +26,6 @@ object WEDT extends Configuration {
 
   def prepareRdd(path: String): RDD[TaggedText] = {
 
-    println("path: " + path)
     val plainTextTry = Try(sparkContext.wholeTextFiles(path))
     plainTextTry match {
       case Success(textData) =>
@@ -62,6 +61,7 @@ object WEDT extends Configuration {
         plainText
           .map(e => (e._1, firstLevelLabelsMapping(e._1), e._2, secondLevelLabelsMapping(e._2), e._3))
           .flatMap(e => e._5
+            //.split("((^(Newsgroup|From):.*((.)*\\n){0,11}^(From|Subject|Organization|: ===.*).*))")
             .split("From:")
             .filter(e => e != "")
             .map(f => TaggedText(e._1, e._2, e._3, e._4, f)))
@@ -123,7 +123,7 @@ object WEDT extends Configuration {
         .show(numRows = 100, truncate = false)
       log.info(s"Accuracy  = $accuracy")
       log.info(s"Precision = $precision")
-      ReadWriteToFileUtils.saveModel(trainedModel1)
+//      ReadWriteToFileUtils.saveModel(trainedModel1, train)
 
       val accuracyEvaluator2 = new MulticlassClassificationEvaluator()
         .setMetricName("accuracy")
@@ -149,7 +149,7 @@ object WEDT extends Configuration {
         .show(numRows = 100, truncate = false)
       log.info(s"Accuracy  = $accuracy2")
       log.info(s"Precision = $precision2")
-      ReadWriteToFileUtils.saveModel(trainedModel2)
+//      ReadWriteToFileUtils.saveModel(trainedModel2)
 
       val accuracyEvaluator3 = new MulticlassClassificationEvaluator()
         .setMetricName("accuracy")
@@ -175,7 +175,7 @@ object WEDT extends Configuration {
         .show(numRows = 100, truncate = false)
       log.info(s"Accuracy  = $accuracy3")
       log.info(s"Precision = $precision3")
-      ReadWriteToFileUtils.saveModel(trainedModel3)
+//      ReadWriteToFileUtils.saveModel(trainedModel3)
 
       val accuracyEvaluator4 = new MulticlassClassificationEvaluator()
         .setMetricName("accuracy")
@@ -200,6 +200,6 @@ object WEDT extends Configuration {
         .show(numRows = 100, truncate = false)
       log.info(s"Accuracy  = $accuracy4")
       log.info(s"Precision = $precision4")
-      ReadWriteToFileUtils.saveModel(trainedModel4)
+//      ReadWriteToFileUtils.saveModel(trainedModel4)
   }
 }

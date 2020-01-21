@@ -5,21 +5,22 @@ import java.nio.file.{Files, Paths}
 import java.util.Calendar
 
 import org.apache.spark.ml.PipelineModel
+import org.apache.spark.mllib.evaluation.MulticlassMetrics
 
 object ReadWriteToFileUtils {
 
   private val now = Calendar.getInstance()
 
-  def saveModel(model: PipelineModel): String = {
+  def saveModel(obj: Any, path: String): String = {
     val baos = new ByteArrayOutputStream()
     val oos = new ObjectOutputStream(baos)
 
-    oos.writeObject(model)
+    oos.writeObject(obj)
     oos.flush()
     oos.close()
 
     val bytes = baos.toByteArray
-    val _path = "models/" + model.stages.last.uid + now
+    val _path = path + now
       .getTime
       .toString
       .replace(" ", "_")
@@ -29,11 +30,11 @@ object ReadWriteToFileUtils {
     out.write(bytes)
     _path
   }
-  def loadModel(path: String): PipelineModel = {
+  def loadModel[T](path: String): T = {
     val byteArray = Files.readAllBytes(Paths.get(path))
     val bis = new ByteArrayInputStream(byteArray)
     val ois = new ObjectInputStream(bis)
 
-      ois.readObject.asInstanceOf[PipelineModel]
+      ois.readObject.asInstanceOf[T]
   }
 }

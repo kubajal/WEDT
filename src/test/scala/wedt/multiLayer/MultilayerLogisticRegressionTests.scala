@@ -40,7 +40,7 @@ class MultilayerLogisticRegressionTests extends AnyFlatSpec with Matchers with C
       .show(numRows = 100, truncate = false)
     log.info(s"Accuracy  = $accuracy")
     log.info(s"Precision = $precision")
-    ReadWriteToFileUtils.saveModel(trainedModel)
+//    ReadWriteToFileUtils.saveModel(trainedModel)
   }
 
 //  "Classifier" should "handle all classes" in {

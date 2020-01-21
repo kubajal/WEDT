@@ -2,6 +2,7 @@ package wedt.singleLayer
 
 import org.apache.spark.ml.classification.{NaiveBayes, OneVsRest}
 import org.apache.spark.ml.evaluation.MulticlassClassificationEvaluator
+import org.apache.spark.mllib.evaluation.MulticlassMetrics
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import wedt._
@@ -12,7 +13,7 @@ class SingleLayerBayesTests extends AnyFlatSpec with Matchers with Configuration
 
   import sqlContext.implicits._
 
-  val DataProvider =  new DataProvider("resources/tests/*", 0.1, 0.1)
+  val DataProvider =  new DataProvider("resources/20-newsgroups", 0.001, 0.001)
 
   "NaiveBayes classifier, lambda=0.8" should "handle all classes" in {
 
@@ -41,7 +42,15 @@ class SingleLayerBayesTests extends AnyFlatSpec with Matchers with Configuration
       .show(numRows = 100, truncate = false)
     log.info(s"Accuracy  = $accuracy")
     log.info(s"Precision = $precision")
-    ReadWriteToFileUtils.saveModel(trainedModel)
+    val metrics = new MulticlassMetrics(validationResult.rdd
+      .map(row => (row.getAs[Double]("prediction"), row.getAs[Double]("label"))))
+    log.info(s"Confussion matrix 1 (Bayes single):")
+    println(metrics.confusionMatrix.toString())
+    log.info(s"Confussion matrix 2 (Bayes single):")
+    println(metrics.confusionMatrix.toString(20, 20))
+    val cm = metrics.confusionMatrix
+    cm.rowIter.foreach(e => println(e))
+//    ReadWriteToFileUtils.saveModel(trainedModel)
   }
 
 //  "NaiveBayes classifier, lambda=0.8" should "handle four classes" in {
