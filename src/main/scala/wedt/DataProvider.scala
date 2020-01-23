@@ -11,6 +11,5 @@ class DataProvider(path: String, train: Double, validate: Double) extends Config
   val Array(trainDf, validateDf, restDf) = rdd
     .toDF()
     .withColumnRenamed("text", "features_0")
-    .randomSplit(Array(train, validate, 1 - train - validate))
-
+    .randomSplit(Array(train, validate, Math.max(1 - train - validate, 0)))
 }

@@ -21,8 +21,8 @@ class MultilayerBayesTests extends AnyFlatSpec with Matchers with Configuration 
     val precisionEvaluator = new MulticlassClassificationEvaluator()
       .setMetricName("weightedPrecision")
     val mlc = new MultilayerClassifier(
-      new OneVsRest().setClassifier(new NaiveBayes().setSmoothing(0.8)),
-      (for {i <- 1 to 20} yield new OneVsRest().setClassifier(new NaiveBayes().setSmoothing(0.8))).toList,
+      new NaiveBayes().setSmoothing(0.8),
+      (for {i <- 1 to 20} yield new NaiveBayes().setSmoothing(0.8)).toList,
       "bayes-multi"
     )
     val trainedModel = new TextPipeline(mlc).fit(DataProvider.trainDf)
@@ -37,8 +37,8 @@ class MultilayerBayesTests extends AnyFlatSpec with Matchers with Configuration 
       e.getAs[Double]("prediction"),
       e.getAs[Double]("label")))
       .show(numRows = 100, truncate = false)
-    log.info(s"Accuracy  = $accuracy")
-    log.info(s"Precision = $precision")
+    logger.info(s"Accuracy  = $accuracy")
+    logger.info(s"Precision = $precision")
 //    ReadWriteToFileUtils.saveModel(trainedModel)
   }
 
@@ -48,13 +48,6 @@ class MultilayerBayesTests extends AnyFlatSpec with Matchers with Configuration 
 //      .setMetricName("accuracy")
 //    val precisionEvaluator = new MulticlassClassificationEvaluator()
 //      .setMetricName("weightedPrecision")
-//
-//    val rdd = WEDT.prepareRdd("resources/tests/*")
-//    rdd.collect
-//      .foreach(e => {
-//        e.firstLevelLabelValue should be (WEDT.firstLevelLabelsMapping(e.firstLevelLabel))
-//        e.secondLevelLabelValue should be (WEDT.secondLevelLabelsMapping(e.secondLevelLabel))
-//      })
 //
 //    val Array(train, validate) = rdd
 //      .toDF()

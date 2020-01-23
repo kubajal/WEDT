@@ -21,7 +21,7 @@ trait Configuration {
   val sqlContext: SQLContext = sparkSession.sqlContext
   var model: Model[_] = _
   sparkContext.setLogLevel("INFO")
-  val log: Logger = Logger.getLogger(getClass.getName)
+  val logger: Logger = Logger.getLogger(getClass.getName)
 
   val layers: Array[Int] = Array[Int](4, 5, 4, 3)
 }

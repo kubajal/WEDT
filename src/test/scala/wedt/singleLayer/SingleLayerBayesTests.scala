@@ -40,13 +40,13 @@ class SingleLayerBayesTests extends AnyFlatSpec with Matchers with Configuration
       e.getAs[Double]("prediction"),
       e.getAs[Double]("label")))
       .show(numRows = 100, truncate = false)
-    log.info(s"Accuracy  = $accuracy")
-    log.info(s"Precision = $precision")
+    logger.info(s"Accuracy  = $accuracy")
+    logger.info(s"Precision = $precision")
     val metrics = new MulticlassMetrics(validationResult.rdd
       .map(row => (row.getAs[Double]("prediction"), row.getAs[Double]("label"))))
-    log.info(s"Confussion matrix 1 (Bayes single):")
+    logger.info(s"Confussion matrix 1 (Bayes single):")
     println(metrics.confusionMatrix.toString())
-    log.info(s"Confussion matrix 2 (Bayes single):")
+    logger.info(s"Confussion matrix 2 (Bayes single):")
     println(metrics.confusionMatrix.toString(20, 20))
     val cm = metrics.confusionMatrix
     cm.rowIter.foreach(e => println(e))
@@ -60,13 +60,6 @@ class SingleLayerBayesTests extends AnyFlatSpec with Matchers with Configuration
 //
 //    val precisionEvaluator = new MulticlassClassificationEvaluator()
 //      .setMetricName("weightedPrecision")
-//
-//    val rdd = WEDT.prepareRdd("resources/tests/*")
-//    rdd.collect
-//      .foreach(e => {
-//        e.firstLevelLabelValue should be (WEDT.firstLevelLabelsMapping(e.firstLevelLabel))
-//        e.secondLevelLabelValue should be (WEDT.secondLevelLabelsMapping(e.secondLevelLabel))
-//      })
 //
 //    val Array(train, validate) = rdd
 //      .toDF()

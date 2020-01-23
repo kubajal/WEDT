@@ -23,8 +23,8 @@ class SerializationTests extends AnyFlatSpec with Matchers with Configuration {
       .randomSplit(Array(0.8, 0.2))
 
     val mlc = new MultilayerClassifier(
-      new OneVsRest().setClassifier(new NaiveBayes()),
-      (for {i <- 1 to 20} yield new OneVsRest().setClassifier(new NaiveBayes())).toList,
+      new NaiveBayes(),
+      (for {i <- 1 to 20} yield new NaiveBayes()).toList,
       "bayes"
     )
     val trainedModel = new TextPipeline(mlc).fit(train)
@@ -47,9 +47,9 @@ class SerializationTests extends AnyFlatSpec with Matchers with Configuration {
   "Serialization" should "work on other serializable classes" in {
 
     class Test(val num: Int, val str: String, val d: Double) extends Serializable {
-      def numTest() = num + 1
-      def strTest() = str + "test"
-      def dTest() = d + 0.5
+      def numTest(): Int = num + 1
+      def strTest(): String = str + "test"
+      def dTest(): Double = d + 0.5
     }
 
     val test = new Test(1, "a", 1.0)
