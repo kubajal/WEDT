@@ -7,7 +7,7 @@ import org.apache.spark.ml.param.ParamMap
 import org.apache.spark.ml.tuning.{CrossValidator, CrossValidatorModel}
 import org.apache.spark.sql.Dataset
 import org.apache.spark.sql.types.StructType
-import wedt.WEDT.{firstLevelLabelsMapping, sqlContext}
+import wedt.WEDT.sqlContext
 
 class SingleLayerClassifier(firstLevelOvrClassifier: Estimator[_],
                             _uid: String)
