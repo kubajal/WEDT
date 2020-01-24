@@ -3,6 +3,7 @@ package wedt
 import org.apache.spark.ml.Estimator
 import org.apache.spark.ml.classification._
 import org.apache.spark.ml.evaluation.MulticlassClassificationEvaluator
+import org.apache.spark.ml.feature.{IndexToString, StringIndexer, StringIndexerModel}
 import org.apache.spark.ml.param.ParamMap
 import org.apache.spark.ml.tuning.{CrossValidator, CrossValidatorModel}
 import org.apache.spark.sql.Dataset
@@ -15,10 +16,11 @@ class SingleLayerClassifier(firstLevelOvrClassifier: Estimator[_],
 
   import sqlContext.implicits._
 
+  var indexer: StringIndexerModel = _
+
   override val uid: String = _uid
 
   override def transformSchema(schema: StructType): StructType = {
-    require(schema.fieldNames.contains("secondLevelLabelValue"), s"Column secondLevelLabelValue does not exist.")
     require(schema.fieldNames.contains("features"), s"Column features does not exist.")
     schema
   }
@@ -27,8 +29,11 @@ class SingleLayerClassifier(firstLevelOvrClassifier: Estimator[_],
 
     log.info(s"fit: got df of ${df.count} rows")
 
-    val secondLevelDataset = df.withColumnRenamed("secondLevelLabelValue", "label")
-
+    indexer = new StringIndexer()
+      .setInputCol("secondLevelLabel")
+      .setOutputCol("label")
+      .fit(df)
+    val secondLevelDataset = indexer.transform(df)
     val pm = firstLevelOvrClassifier.extractParamMap()
 
     log.info("fitting 1 level")

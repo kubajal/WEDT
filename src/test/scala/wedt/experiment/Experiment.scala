@@ -19,45 +19,49 @@ class Experiment extends AnyFlatSpec with Matchers with Configuration {
   var metrics2: MulticlassMetrics = _
   import sqlContext.implicits._
 
-//  "NaiveBayes single classifier, lambda=0.8" should "handle all classes" in {
-//
-//    logger.info(s"Starting Bayes single experiment")
-//    val accuracyEvaluator = new MulticlassClassificationEvaluator()
-//      .setMetricName("accuracy")
-//    val precisionEvaluator = new MulticlassClassificationEvaluator()
-//      .setMetricName("weightedPrecision")
-//
-//    val slc = new SingleLayerClassifier(
-//      new NaiveBayes().setSmoothing(0.8),
-//      "bayes-single"
-//    )
-//    val pipeline = new TextPipeline(slc)
-//    logger.info("starting fit for bayes-single")
-//    val trainedModel = pipeline.fit(DataProvider.trainDf)
-//    logger.info("completed fit for bayes-single")
-//    val validationResult = trainedModel.transform(DataProvider.validateDf)
-//      .withColumnRenamed("firstLevelLabel", "label")
-//    val accuracy = accuracyEvaluator.evaluate(validationResult)
-//    val precision = precisionEvaluator.evaluate(validationResult)
-//    validationResult.map(e => (
-//      e.getAs[String]("features_0")
-//        .take(100)
-//        .replace("\n", "")
-//        .replace("\r", ""),
-//      e.getAs[Double]("prediction"),
-//      e.getAs[Double]("label")))
-//      .show(numRows = 100, truncate = false)
-//    ReadWriteToFileUtils.saveModel(trainedModel, "experiment/bayes-single.obj")
-//
-//    metrics1 = new MulticlassMetrics(validationResult.rdd
-//      .map(row => (row.getAs[Double]("prediction"), row.getAs[Double]("label"))))
-//    logger.info(s"Confussion matrix (Bayes single):")
-//    println(metrics1.confusionMatrix)
-//    logger.info(s"Accuracy  = $accuracy")
-//    logger.info(s"Precision = $precision")
-////    assert(accuracy == metrics1.accuracy)
-////    assert(precision == metrics1.precision)
-//  }
+  "NaiveBayes single classifier" should "handle all classes" in {
+
+    logger.info(s"Starting Bayes single experiment")
+    val accuracyEvaluator = new MulticlassClassificationEvaluator()
+      .setMetricName("accuracy")
+    val precisionEvaluator = new MulticlassClassificationEvaluator()
+      .setMetricName("weightedPrecision")
+
+    val slc = new SingleLayerClassifier(
+      new NaiveBayes().setSmoothing(0.0),
+      "bayes-single"
+    )
+    val pipeline = new TextPipeline(slc)
+    logger.info("starting fit for bayes-single")
+    val trainedModel = pipeline.fit(DataProvider.trainDf)
+
+    val indexer = slc.indexer
+
+    logger.info("completed fit for bayes-single")
+    val validationResult1 = trainedModel.transform(DataProvider.validateDf)
+    val validationResult = indexer.transform(validationResult1)
+
+    val accuracy = accuracyEvaluator.evaluate(validationResult)
+    val precision = precisionEvaluator.evaluate(validationResult)
+    validationResult.map(e => (
+      e.getAs[String]("features_0")
+        .take(100)
+        .replace("\n", "")
+        .replace("\r", ""),
+      e.getAs[Double]("prediction"),
+      e.getAs[Double]("label")))
+      .show(numRows = 100, truncate = false)
+    ReadWriteToFileUtils.saveModel(trainedModel, "experiment/bayes-single.obj")
+
+    metrics1 = new MulticlassMetrics(validationResult.rdd
+      .map(row => (row.getAs[Double]("prediction"), row.getAs[Double]("label"))))
+    logger.info(s"Confussion matrix (Bayes single):")
+    println(metrics1.confusionMatrix)
+    logger.info(s"Accuracy  = $accuracy")
+    logger.info(s"Precision = $precision")
+//    assert(accuracy == metrics1.accuracy)
+//    assert(precision == metrics1.precision)
+  }
 
   "NaiveBayes multi classifier, lambda=0.8" should "handle all classes" in {
 
@@ -135,11 +139,11 @@ class Experiment extends AnyFlatSpec with Matchers with Configuration {
 //    assert(precision == metrics2.precision)
   }
 
-  "MulticlassMetrics" should "be saved" in {
-
-    ReadWriteToFileUtils.saveModel(
-        metrics1.confusionMatrix, "experiment/metrics1.obj")
-    ReadWriteToFileUtils.saveModel(
-        metrics2.confusionMatrix, "experiment/metrics2.obj")
-  }
+//  "MulticlassMetrics" should "be saved" in {
+//
+//    ReadWriteToFileUtils.saveModel(
+//        metrics1.confusionMatrix, "experiment/metrics1.obj")
+//    ReadWriteToFileUtils.saveModel(
+//        metrics2.confusionMatrix, "experiment/metrics2.obj")
+//  }
 }

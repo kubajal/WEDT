@@ -1,10 +1,10 @@
 package wedt
 
 import org.apache.spark.ml.attribute.AttributeGroup
-import org.apache.spark.ml.{Model, PredictionModel, Transformer}
+import org.apache.spark.ml.{Model, PipelineModel, PredictionModel, Transformer}
 import org.apache.spark.ml.classification._
 import org.apache.spark.ml.evaluation.MulticlassClassificationEvaluator
-import org.apache.spark.ml.feature.{IndexToString, StringIndexer, StringIndexerModel}
+import org.apache.spark.ml.feature._
 import org.apache.spark.ml.linalg.Vector
 import org.apache.spark.ml.param.ParamMap
 import org.apache.spark.ml.tuning.{CrossValidator, CrossValidatorModel}
@@ -15,7 +15,7 @@ class MultilayerClassificationModel(_uid: String,
                                     val firstLevelClassifier: Model[_],
                                     val firstLevelIndexer: StringIndexerModel,
                                     val globalIndexer: StringIndexerModel,
-                                    val secondLevelClassifiers: Map[String, (StringIndexerModel, NaiveBayesModel)])
+                                    val secondLevelClassifiers: Map[String, (StringIndexerModel, PipelineModel)])
   extends Model[MultilayerClassificationModel] {
 
   import Implicits._
@@ -48,13 +48,14 @@ class MultilayerClassificationModel(_uid: String,
         .withColumnRenamed("prediction", "1stLevelPrediction")
         .withColumnRenamed("rawPrediction", "1stLevelrawPrediction")
         .withColumnRenamed("probability", "1stLevelprobability")
+          .drop("features", "features_1", "features_2", "features_3", "features_4", "features_5")
         .filter(f => f.getAs[String]("predicted1stLevelClass") == e).persist))
       .map(e => {
         logger.info("classifying 2nd level: " + e)
-        e._2.select("predicted1stLevelClass", "firstLevelLabel", "secondLevelLabel")
-            .show(false)
-        val classifier = secondLevelClassifiers(e._1)._2
-        val result = classifier.transform(e._2)
+        val pipeline = secondLevelClassifiers(e._1)._2
+        val result = pipeline.transform(e._2)
+        logger.info(s"number of features for level ${e._1}: ${result.schema(result
+          .schema.fieldIndex("features")).metadata.getMetadata("ml_attr").getLong("num_attrs")}")
         secondLevelReverseIndexers(e._1).transform(result)
           .withColumnRenamed("prediction", "2ndLevelPrediction")
           .withColumnRenamed("rawPrediction", "2ndLevelrawPrediction")
