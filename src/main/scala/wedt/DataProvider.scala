@@ -62,6 +62,10 @@ class DataProvider(path: String, train: Double, validate: Double) extends Config
 
   val rdd: RDD[TaggedText] = prepareRdd(500)
 
+  private val counts = rdd.map(e => e.secondLevelLabel)
+    .countByValue.toList
+  println(s"counts of each secondLevelLabel: $counts")
+
   val Array(trainDf, validateDf, restDf) = rdd
     .toDF()
     .withColumnRenamed("text", "features_0")
