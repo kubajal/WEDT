@@ -13,7 +13,7 @@ class Experiment extends AnyFlatSpec with Matchers with Configuration {
   sparkContext.setLogLevel("ERROR")
   import Implicits._
 
-  val DataProvider =  new DataProvider("resources/20-newsgroups", 0.07, 0.03)
+  val DataProvider =  new DataProvider("resources/20-newsgroups", 0.7, 0.3)
 
   var metrics1: MulticlassMetrics = _
   var metrics2: MulticlassMetrics = _
@@ -73,7 +73,7 @@ class Experiment extends AnyFlatSpec with Matchers with Configuration {
     val mlc = new MultilayerClassifier(
       new NaiveBayes().setSmoothing(0.8),
       (for {i <- 1 to 20} yield new NaiveBayes().setSmoothing(0.8)).toList,
-      "bayes-multi"
+      s"bayes-multi"
     )
 
     logger.info(s"size of DataProvider.trainDf: ${DataProvider.trainDf.count}")

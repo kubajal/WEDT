@@ -6,8 +6,9 @@ import org.apache.spark.ml.evaluation.MulticlassClassificationEvaluator
 import org.apache.spark.ml.feature.{IndexToString, StringIndexer, StringIndexerModel}
 import org.apache.spark.ml.param.ParamMap
 import org.apache.spark.ml.tuning.{CrossValidator, CrossValidatorModel}
-import org.apache.spark.sql.Dataset
+import org.apache.spark.sql.{DataFrame, Dataset}
 import org.apache.spark.sql.types.StructType
+import wedt.Implicits.logger
 import wedt.WEDT.sqlContext
 
 class SingleLayerClassifier(firstLevelOvrClassifier: Estimator[_],
@@ -25,9 +26,14 @@ class SingleLayerClassifier(firstLevelOvrClassifier: Estimator[_],
     schema
   }
 
-  override def fit(df: Dataset[_]): CrossValidatorModel = {
+  override def fit(dataset: Dataset[_]): CrossValidatorModel = {
+
+    val df = dataset.asInstanceOf[DataFrame]
 
     log.info(s"fit: got df of ${df.count} rows")
+
+    val featuresNumber = df.head.getAs[org.apache.spark.ml.linalg.Vector]("features").size
+    logger.info(s"single-bayes: number of features: ${featuresNumber}")
 
     indexer = new StringIndexer()
       .setInputCol("secondLevelLabel")

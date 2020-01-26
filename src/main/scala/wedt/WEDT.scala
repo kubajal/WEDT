@@ -20,39 +20,6 @@ import scala.util.{Failure, Success, Try}
 object WEDT extends Configuration {
   import sqlContext.implicits._
 
-  def prepareRdd(path: String): RDD[TaggedText] = {
-
-    val plainTextTry = Try(sparkContext.wholeTextFiles(path))
-    plainTextTry match {
-      case Success(textData) =>
-
-        // wyciaganie sciezki
-        val plainText1 = textData
-          .map(e => (e._1.split("/").takeRight(1).reduce((a,b) => a+"/"+b), e._2))
-        val plainText2 = plainText1
-          .map(e => (e._1.split("\\."), e._2))
-        val plainText = plainText2
-          .map(e => (e._1.head, e._1.takeRight(e._1.length-1).reduce((a,b) => a+"."+b), e._2))
-
-        //todo: zrobic porzadne logowanie
-        logger.info("liczba wczytanych plikow: " + plainText.count())
-
-        plainText
-          .map(e => (e._1, e._2, e._3))
-          .flatMap(e => e._3
-//            .split("((^(Newsgroup|From):.*((.)*\\n){0,11}^(From|Subject|Organization|: ===.*).*))")
-            .split("From:")
-            .filter(e => e != "")
-            .map(f => TaggedText(e._1, e._2, f)))
-          .persist
-      case Failure(e) =>
-        //todo: zrobic porzadne logowanie
-        logger.info(s"Could not load files from the path: $path")
-        sparkContext.stop()
-        throw e
-    }
-  }
-
   def main(args: Array[String]): Unit = {
 
 

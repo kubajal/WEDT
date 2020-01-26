@@ -11,16 +11,16 @@ class SerializationTests extends AnyFlatSpec with Matchers with Configuration {
 
   sparkContext.setLogLevel("ERROR")
 
+
   import sqlContext.implicits._
 
   "Serialization" should "work on PipelineModel" in {
 
-    val rdd = WEDT.prepareRdd("resources/tests/*")
+    val dataProvider = new DataProvider("resources/tests/*", 0.8, 0.2)
+    val rdd = dataProvider.prepareRdd(500)
 
-    val Array(train, validate) = rdd
-      .toDF()
-      .withColumnRenamed("text", "features_0")
-      .randomSplit(Array(0.8, 0.2))
+    val train = dataProvider.trainDf
+    val validate = dataProvider.validateDf
 
     val mlc = new MultilayerClassifier(
       new NaiveBayes(),

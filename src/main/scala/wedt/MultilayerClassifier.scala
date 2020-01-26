@@ -54,16 +54,17 @@ class MultilayerClassifier[+M <: NaiveBayes](firstLevelOvrClassifier: M,
     val secondLevelClassifiers: Map[String, (StringIndexerModel, PipelineModel)] = firstLevelIndexer.labels
       .zip(secondLevelOvrClassifiers)
       .map(e => {
-        val subset = df.filter(f => f.getAs[String]("firstLevelLabel") == e._1)
+        val subset = df.filter(f => f.getAs[String]("firstLevelLabel") == e._1).persist
         val indexer = new StringIndexer()
           .setInputCol("secondLevelLabel")
           .setOutputCol("label")
           .fit(subset)
-        val indexedLabelsSubset = indexer.transform(subset.drop("label"))
-        val indexedSubset = indexer.transform(subset.drop("features", "features_1", "features_2", "features_3", "features_4", "features_5"))
+        val indexedSubset = indexer.transform(subset.drop("features", "features_1", "features_2", "features_3", "features_4", "features_5", "labels"))
+        println(s"fitting ${e._1} pipeline using ${indexedSubset.count} rows")
+        indexedSubset.drop("features_0").show(false)
         val pipeline = new TextPipeline(e._2)
           .fit(indexedSubset)
-        log.info("fitting 2nd level: " + e._1 + " using " + indexedLabelsSubset.count() + " rows")
+        log.info("fitting 2nd level: " + e._1 + " using " + indexedSubset.count() + " rows")
         e._1 -> (indexer, pipeline)
       }).toMap
 
