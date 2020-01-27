@@ -2,6 +2,7 @@ package wedt.experiment
 
 import org.apache.spark.ml.classification.{LogisticRegression, NaiveBayes, OneVsRest}
 import org.apache.spark.ml.evaluation.MulticlassClassificationEvaluator
+import org.apache.spark.ml.feature.CountVectorizerModel
 import org.apache.spark.mllib.linalg.Matrix
 import org.apache.spark.mllib.evaluation.MulticlassMetrics
 import org.scalatest.flatspec.AnyFlatSpec
@@ -12,8 +13,13 @@ class Experiment extends AnyFlatSpec with Matchers with Configuration {
 
   sparkContext.setLogLevel("ERROR")
   import Implicits._
+  import sparkSession.implicits._
 
-  val DataProvider =  new DataProvider("resources/20-newsgroups", 0.7, 0.3)
+  val dataProvider =  new DataProvider("resources/20-newsgroups")
+  val df = dataProvider.prepareRdd1(1000)
+    .toDF("firstLevelLabel", "secondLevelLabel", "features_0")
+  val Array(trainDf, validateDf) = df.randomSplit(Array(0.7, 0.3))
+
 
   var metrics1: MulticlassMetrics = _
   var metrics2: MulticlassMetrics = _
@@ -28,29 +34,24 @@ class Experiment extends AnyFlatSpec with Matchers with Configuration {
       .setMetricName("weightedPrecision")
 
     val slc = new SingleLayerClassifier(
-      new NaiveBayes().setSmoothing(0.0),
+      new NaiveBayes().setSmoothing(1.0),
       "bayes-single"
     )
-    val pipeline = new TextPipeline(slc)
+    val pipeline = new TextPipeline(slc, 1000)
     logger.info("starting fit for bayes-single")
-    val trainedModel = pipeline.fit(DataProvider.trainDf)
+    val trainedModel = pipeline.fit(trainDf)
+
+    val vocabulary = trainedModel.stages.takeRight(3).head.asInstanceOf[CountVectorizerModel].vocabulary.toList
+    println(s"single-bayes - vocabulary for first level: $vocabulary")
 
     val indexer = slc.indexer
 
     logger.info("completed fit for bayes-single")
-    val validationResult1 = trainedModel.transform(DataProvider.validateDf)
+    val validationResult1 = trainedModel.transform(validateDf)
     val validationResult = indexer.transform(validationResult1)
 
     val accuracy = accuracyEvaluator.evaluate(validationResult)
     val precision = precisionEvaluator.evaluate(validationResult)
-    validationResult.map(e => (
-      e.getAs[String]("features_0")
-        .take(100)
-        .replace("\n", "")
-        .replace("\r", ""),
-      e.getAs[Double]("prediction"),
-      e.getAs[Double]("label")))
-      .show(numRows = 100, truncate = false)
     ReadWriteToFileUtils.saveModel(trainedModel, "experiment/bayes-single.obj")
 
     metrics1 = new MulticlassMetrics(validationResult.rdd
@@ -71,22 +72,24 @@ class Experiment extends AnyFlatSpec with Matchers with Configuration {
     val precisionEvaluator = new MulticlassClassificationEvaluator()
       .setMetricName("weightedPrecision")
     val mlc = new MultilayerClassifier(
-      new NaiveBayes().setSmoothing(0.8),
-      (for {i <- 1 to 20} yield new NaiveBayes().setSmoothing(0.8)).toList,
+      new NaiveBayes().setSmoothing(1),
+      (for {i <- 1 to 20} yield new NaiveBayes().setSmoothing(1)).toList,
       s"bayes-multi"
     )
 
-    logger.info(s"size of DataProvider.trainDf: ${DataProvider.trainDf.count}")
-    logger.info(s"size of DataProvider.validateDf: ${DataProvider.validateDf.count}")
+    logger.info(s"size of DataProvider.trainDf: ${trainDf.count}")
+    logger.info(s"size of DataProvider.validateDf: ${validateDf.count}")
     logger.info("starting fit for bayes-multi")
-    val trainedModel = new TextPipeline(mlc).fit(DataProvider.trainDf)
+    val trainedModel = new TextPipeline(mlc, 1000).fit(trainDf)
+    val vocabulary = trainedModel.stages.takeRight(3).head.asInstanceOf[CountVectorizerModel].vocabulary.toList
+    println(s"multi-bayes - vocabulary for first level: $vocabulary")
     val mlcm = trainedModel.stages.last.asInstanceOf[MultilayerClassificationModel]
 
-    val result = trainedModel.transform(DataProvider.validateDf)
+    val result = trainedModel.transform(validateDf)
 
     println(s"result count: ${result.count}")
     result.select("predicted1stLevelClass", "firstLevelLabel", "predicted2ndLevelClass", "secondLevelLabel")
-      .show(numRows = 500, truncate = false)
+      .show(numRows = 1000, truncate = false)
     result.printSchema()
 
     logger.info("completed fit for bayes-multi")

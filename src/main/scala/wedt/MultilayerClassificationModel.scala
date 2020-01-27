@@ -41,7 +41,7 @@ class MultilayerClassificationModel(_uid: String,
 
     logger.info(s"transform: got dataset of ${dataset.count} rows")
     val featuresNumber = firstLevelDf.head.getAs[org.apache.spark.ml.linalg.Vector]("features").size
-    logger.info(s"number of features for first level: ${featuresNumber}")
+    logger.info(s"number of features for first level: $featuresNumber")
 
     firstLevelDf.customShow()
 
@@ -55,9 +55,11 @@ class MultilayerClassificationModel(_uid: String,
       .map(e => {
         logger.info("classifying 2nd level: " + e)
         val pipeline = secondLevelClassifiers(e._1)._2
+        val vocabulary = pipeline.stages.takeRight(3).head.asInstanceOf[CountVectorizerModel].vocabulary.toList
+        println(s"vocabulary for class ${e._1}: $vocabulary")
         val result = pipeline.transform(e._2)
         val featuresNumber = result.head.getAs[org.apache.spark.ml.linalg.Vector]("features").size
-        logger.info(s"number of features for level ${e._1}: ${featuresNumber}")
+        logger.info(s"number of features for level ${e._1}: $featuresNumber")
         secondLevelReverseIndexers(e._1).transform(result)
           .withColumnRenamed("prediction", "2ndLevelPrediction")
           .withColumnRenamed("rawPrediction", "2ndLevelrawPrediction")

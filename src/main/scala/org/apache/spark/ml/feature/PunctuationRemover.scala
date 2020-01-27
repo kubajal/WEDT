@@ -10,8 +10,8 @@ class PunctuationRemover(override val uid: String) extends UnaryTransformer[Seq[
   override protected def createTransformFunc: Seq[String] => Seq[String] = { seqOfStrings => {
       seqOfStrings
         .map(e => {
-          e.replaceAll("^([.!?,:;\"\'\\(\\[\\>\\<\\-]*)|([.!?,:;\"\'\\)\\]\\<\\>\\-]*)$", "")})
-        .filter(e => e.matches("^[a-zA-Z0-9':-]+$"))
+          e.replaceAll("^([.!?,:';\"\'\\(\\[\\>\\<\\-]*)|([.!?,:';\"\'\\)\\]\\<\\>\\-]*)$", "")})
+        .filter(e => e.matches("^[a-zA-Z':-]+$"))
     }
   }
 

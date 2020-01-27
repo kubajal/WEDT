@@ -10,7 +10,7 @@ import wedt.WEDT.{getClass, sparkContext}
 trait Configuration {
 
   val conf = new SparkConf()
-  conf.setMaster("local")
+  conf.setMaster("local[*]")
   conf.setAppName("WEDT")
   val sparkSession: SparkSession = SparkSession
     .builder

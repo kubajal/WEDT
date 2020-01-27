@@ -48,7 +48,14 @@ class MultilayerClassifier[+M <: NaiveBayes](firstLevelOvrClassifier: M,
       .show(false)
 
     log.info(s"fitting 1 level using ${df.count} rows")
-    val firstLevelClassifier = firstLevelOvrClassifier
+
+    val cv = new CrossValidator()
+      .setEstimator(firstLevelOvrClassifier)
+      .setEvaluator(new MulticlassClassificationEvaluator())
+      .setNumFolds(5)
+      .setEstimatorParamMaps(Array(pm))
+
+    val firstLevelClassifier = cv
         .fit(firstLevelDataset)
 
     val secondLevelClassifiers: Map[String, (StringIndexerModel, PipelineModel)] = firstLevelIndexer.labels
@@ -62,7 +69,12 @@ class MultilayerClassifier[+M <: NaiveBayes](firstLevelOvrClassifier: M,
         val indexedSubset = indexer.transform(subset.drop("features", "features_1", "features_2", "features_3", "features_4", "features_5", "labels"))
         println(s"fitting ${e._1} pipeline using ${indexedSubset.count} rows")
         indexedSubset.drop("features_0").show(false)
-        val pipeline = new TextPipeline(e._2)
+        val cv = new CrossValidator()
+          .setEstimator(e._2)
+          .setEvaluator(new MulticlassClassificationEvaluator())
+          .setNumFolds(5)
+          .setEstimatorParamMaps(Array(pm))
+        val pipeline = new TextPipeline(cv, 500)
           .fit(indexedSubset)
         log.info("fitting 2nd level: " + e._1 + " using " + indexedSubset.count() + " rows")
         e._1 -> (indexer, pipeline)

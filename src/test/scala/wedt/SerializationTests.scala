@@ -11,24 +11,23 @@ class SerializationTests extends AnyFlatSpec with Matchers with Configuration {
 
   sparkContext.setLogLevel("ERROR")
 
-
   import sqlContext.implicits._
 
   "Serialization" should "work on PipelineModel" in {
 
-    val dataProvider = new DataProvider("resources/tests/*", 0.8, 0.2)
-    val rdd = dataProvider.prepareRdd(500)
+    val dataProvider = new DataProvider("resources/tests/*")
+    val df = dataProvider.prepareRdd1(100)
+      .toDF("firstLevelLabel", "secondLevelLabel", "features_0")
 
-    val train = dataProvider.trainDf
-    val validate = dataProvider.validateDf
+    val Array(trainDf, validateDf) = df.randomSplit(Array(0.7, 0.3))
 
     val mlc = new MultilayerClassifier(
       new NaiveBayes(),
       (for {i <- 1 to 20} yield new NaiveBayes()).toList,
       "bayes"
     )
-    val trainedModel = new TextPipeline(mlc).fit(train)
-    val validationResult = trainedModel.transform(validate)
+    val trainedModel = new TextPipeline(mlc, 300).fit(trainDf)
+    val validationResult = trainedModel.transform(validateDf)
     validationResult.map(e => (
       e.getAs[String]("features_0")
         .take(100)
@@ -40,7 +39,7 @@ class SerializationTests extends AnyFlatSpec with Matchers with Configuration {
 
     val path = ReadWriteToFileUtils.saveModel(trainedModel, "tmp/" + trainedModel.stages.last.uid)
     val loadedModel = ReadWriteToFileUtils.loadModel[PipelineModel](path)
-    val result = loadedModel.transform(validate)
+    val result = loadedModel.transform(validateDf)
   }
 
 

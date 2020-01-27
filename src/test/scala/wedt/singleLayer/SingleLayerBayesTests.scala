@@ -13,7 +13,10 @@ class SingleLayerBayesTests extends AnyFlatSpec with Matchers with Configuration
 
   import sqlContext.implicits._
 
-  val DataProvider =  new DataProvider("resources/20-newsgroups", 0.001, 0.001)
+  val dataProvider =  new DataProvider("resources/20-newsgroups")
+  val df = dataProvider.prepareRdd1(100)
+    .toDF("firstLevelLabel", "secondLevelLabel", "features_0")
+  val Array(trainDf, validateDf) = df.randomSplit(Array(0.7, 0.3))
 
   "NaiveBayes classifier, lambda=0.8" should "handle all classes" in {
 
@@ -26,9 +29,9 @@ class SingleLayerBayesTests extends AnyFlatSpec with Matchers with Configuration
       new NaiveBayes().setSmoothing(0.8),
       "bayes-single"
     )
-    val pipeline = new TextPipeline(slc)
-    val trainedModel = pipeline.fit(DataProvider.trainDf)
-    val validationResult = trainedModel.transform(DataProvider.validateDf)
+    val pipeline = new TextPipeline(slc, 300)
+    val trainedModel = pipeline.fit(trainDf)
+    val validationResult = trainedModel.transform(validateDf)
       .withColumnRenamed("secondLevelLabelValue", "label")
     val accuracy = accuracyEvaluator.evaluate(validationResult)
     val precision = precisionEvaluator.evaluate(validationResult)
