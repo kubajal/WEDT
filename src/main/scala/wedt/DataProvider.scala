@@ -28,12 +28,12 @@ class DataProvider(path: String) extends Configuration {
             .map(e => (e._1.head, e._1.takeRight(e._1.length-1).reduce((a,b) => a+"."+b), e._2))
 
           //todo: zrobic porzadne logowanie
-          logger.info("liczba wczytanych plikow: " + plainText.count())
+          logSpark("number of loaded files: " + plainText.count())
 
           val baseDf = plainText
             .map(e => {
               e._3
-                //.split("((Newsgroup|From):.*((.)*\\n){0,11}(From|Subject|Organization|: ===.*).*)")
+                //.split("(Newsgroup|From):.*((.)*\\n){0,11}(From|Subject|Organization|: ===.*).*")
                 .split("From:")
                 .filter(e => e != "")
                 .map(f => TaggedText(e._1, e._2, f))
@@ -46,11 +46,11 @@ class DataProvider(path: String) extends Configuration {
             baseDf.map(e =>
               Random.shuffle(e.toList).take(numberOfRowsInASubclass.toInt))
               .flatMap(e => e)
-          println(s"${subdir.getPath} gave ${sample.count} rows")
-          sample
+          logSpark(s"${subdir.getPath} gave ${sample.count} rows")
+          sample.persist
         case Failure(e) =>
           //todo: zrobic porzadne logowanie
-          logger.info(s"Could not load files from the path: $path")
+          logSpark(s"Could not load files from the path: $path")
           sparkContext.stop()
           throw e
       }
@@ -76,7 +76,7 @@ class DataProvider(path: String) extends Configuration {
             .map(e => (e._1.head, e._1.takeRight(e._1.length-1).reduce((a,b) => a+"."+b), e._2))
 
           //todo: zrobic porzadne logowanie
-          logger.info("liczba wczytanych plikow: " + plainText.count())
+          logSpark("dataprovider: number of loaded files: " + plainText.count())
 
           val baseDf = plainText
             .map(e => {
@@ -93,11 +93,11 @@ class DataProvider(path: String) extends Configuration {
             baseDf.map(e =>
               Random.shuffle(e.toList).take(numberOfRowsInAClass))
               .flatMap(e => e)
-          println(s"${subdir.getPath} gave ${sample.count} rows")
-          sample
+          logSpark(s"${subdir.getPath} gave ${sample.count} rows")
+          sample.persist
         case Failure(e) =>
           //todo: zrobic porzadne logowanie
-          logger.info(s"Could not load files from the path: $path")
+          logSpark(s"Could not load files from the path: $path")
           sparkContext.stop()
           throw e
       }
@@ -111,6 +111,6 @@ class DataProvider(path: String) extends Configuration {
 
   private val counts = rdd.map(e => e.secondLevelLabel)
     .countByValue.toList
-  println(s"counts of each secondLevelLabel: $counts")
+  logSpark(s"dataprovider: counts of each secondLevelLabel: $counts")
 
 }

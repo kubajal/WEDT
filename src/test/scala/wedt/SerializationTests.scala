@@ -24,18 +24,11 @@ class SerializationTests extends AnyFlatSpec with Matchers with Configuration {
     val mlc = new MultilayerClassifier(
       new NaiveBayes(),
       (for {i <- 1 to 20} yield new NaiveBayes()).toList,
-      "bayes"
+      "bayes",
+      500
     )
     val trainedModel = new TextPipeline(mlc, 300).fit(trainDf)
     val validationResult = trainedModel.transform(validateDf)
-    validationResult.map(e => (
-      e.getAs[String]("features_0")
-        .take(100)
-        .replace("\n", "")
-        .replace("\r", ""),
-      e.getAs[Double]("prediction"),
-      e.getAs[Double]("label")))
-      .show(numRows = 100, truncate = false)
 
     val path = ReadWriteToFileUtils.saveModel(trainedModel, "tmp/" + trainedModel.stages.last.uid)
     val loadedModel = ReadWriteToFileUtils.loadModel[PipelineModel](path)

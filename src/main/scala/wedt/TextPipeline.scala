@@ -8,7 +8,7 @@ import org.apache.spark.sql.Dataset
 class TextPipeline(mlc: Estimator[_], vocabSize: Int) extends Pipeline with Configuration {
 
   private val stopWords = sparkContext.textFile("src/main/scala/wedt/stopwords.txt").collect.distinct
-  println(s"list of stopwords: ${stopWords.toList}")
+  logSpark(s"list of stopwords: ${stopWords.toList}")
 
   private val tokenizer = new Tokenizer()
     .setInputCol("features_0")
@@ -17,7 +17,6 @@ class TextPipeline(mlc: Estimator[_], vocabSize: Int) extends Pipeline with Conf
   private val stopWordsRemover = new StopWordsRemover()
     .setInputCol("features_2")
     .setStopWords(stopWords)
-  println(s"stopWordsRemover stoplist: ${stopWordsRemover.stopWords}")
   private val stemmer = new PorterStemmerWrapper("stemmer")
     .setInputCol("features_3")
   private val vectorizer = new CountVectorizer()

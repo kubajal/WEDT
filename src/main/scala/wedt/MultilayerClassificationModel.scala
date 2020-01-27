@@ -39,11 +39,9 @@ class MultilayerClassificationModel(_uid: String,
     val firstLevelDf = firstLevelReverseIndexer.transform(df)
       .persist
 
-    logger.info(s"transform: got dataset of ${dataset.count} rows")
+    logSpark(s"multi: transform: got dataset of ${dataset.count} rows")
     val featuresNumber = firstLevelDf.head.getAs[org.apache.spark.ml.linalg.Vector]("features").size
-    logger.info(s"number of features for first level: $featuresNumber")
-
-    firstLevelDf.customShow()
+    logSpark(s"multi: number of features for first level: $featuresNumber")
 
     val secondLevelDf = firstLevelIndexer.labels
       .map(e => (e, firstLevelDf
@@ -53,13 +51,13 @@ class MultilayerClassificationModel(_uid: String,
           .drop("features", "features_1", "features_2", "features_3", "features_4", "features_5")
         .filter(f => f.getAs[String]("predicted1stLevelClass") == e).persist))
       .map(e => {
-        logger.info("classifying 2nd level: " + e)
+        logSpark("multi: classifying 2nd level: " + e)
         val pipeline = secondLevelClassifiers(e._1)._2
         val vocabulary = pipeline.stages.takeRight(3).head.asInstanceOf[CountVectorizerModel].vocabulary.toList
-        println(s"vocabulary for class ${e._1}: $vocabulary")
+        logSpark(s"multi: vocabulary for class ${e._1}: $vocabulary")
         val result = pipeline.transform(e._2)
         val featuresNumber = result.head.getAs[org.apache.spark.ml.linalg.Vector]("features").size
-        logger.info(s"number of features for level ${e._1}: $featuresNumber")
+        logSpark(s"multi: number of features for level ${e._1}: $featuresNumber")
         secondLevelReverseIndexers(e._1).transform(result)
           .withColumnRenamed("prediction", "2ndLevelPrediction")
           .withColumnRenamed("rawPrediction", "2ndLevelrawPrediction")

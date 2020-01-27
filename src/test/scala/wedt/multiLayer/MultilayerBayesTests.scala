@@ -12,10 +12,10 @@ class MultilayerBayesTests extends AnyFlatSpec with Matchers with Configuration 
 
   import sqlContext.implicits._
 
-  val dataProvider =  new DataProvider("resources/20-newsgroups/*")
-  val df = dataProvider.prepareRdd1(100)
+  private val dataProvider =  new DataProvider("resources/20-newsgroups/*")
+  private val df = dataProvider.prepareRdd1(100)
     .toDF("firstLevelLabel", "secondLevelLabel", "features_0")
-  val Array(trainDf, validateDf) = df.randomSplit(Array(0.7, 0.3))
+  private val Array(trainDf, validateDf) = df.randomSplit(Array(0.7, 0.3))
 
   "NaiveBayes classifier, lambda=0.8" should "handle all classes" in {
 
@@ -26,7 +26,8 @@ class MultilayerBayesTests extends AnyFlatSpec with Matchers with Configuration 
     val mlc = new MultilayerClassifier(
       new NaiveBayes().setSmoothing(0.8),
       (for {i <- 1 to 20} yield new NaiveBayes().setSmoothing(0.8)).toList,
-      "bayes-multi"
+      "bayes-multi",
+      500
     )
     val trainedModel = new TextPipeline(mlc, 300).fit(trainDf)
     val validationResult = trainedModel.transform(validateDf)

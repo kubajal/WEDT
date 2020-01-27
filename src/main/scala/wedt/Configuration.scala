@@ -1,5 +1,8 @@
 package wedt
 
+import java.io.{BufferedWriter, File, FileWriter, PrintWriter}
+import java.time.Instant
+
 import org.apache.log4j.Logger
 import org.apache.spark.ml.feature._
 import org.apache.spark.{SparkConf, SparkContext}
@@ -11,7 +14,7 @@ trait Configuration {
 
   val conf = new SparkConf()
   conf.setMaster("local[*]")
-  conf.setAppName("WEDT")
+  conf.setAppName("NONE")
   val sparkSession: SparkSession = SparkSession
     .builder
     .config(conf)
@@ -20,8 +23,12 @@ trait Configuration {
   val defaultPath = "resources/20-newsgroups/*"
   val sqlContext: SQLContext = sparkSession.sqlContext
   var model: Model[_] = _
-  sparkContext.setLogLevel("INFO")
+  sparkContext.setLogLevel("ERROR")
   val logger: Logger = Logger.getLogger(getClass.getName)
 
   val layers: Array[Int] = Array[Int](4, 5, 4, 3)
+
+  def logSpark(s: String) = {
+    println(s"${Instant.now()}: $s")
+  }
 }

@@ -1,6 +1,6 @@
 package wedt
 
-import java.io.{ByteArrayOutputStream, ObjectOutputStream}
+import java.io.{ByteArrayOutputStream, File, ObjectOutputStream, PrintWriter}
 
 import org.apache.spark.ml._
 import org.apache.spark.ml.classification._
@@ -13,8 +13,9 @@ import org.apache.spark.sql.types.{DoubleType, StructField, StructType}
 import wedt.WEDT.{sparkContext, sqlContext}
 
 class MultilayerClassifier[+M <: NaiveBayes](firstLevelOvrClassifier: M,
-                                               secondLevelOvrClassifiers: List[M],
-                                               _uid: String)
+                                             secondLevelOvrClassifiers: List[M],
+                                             _uid: String,
+                                             subclassesVocabSize: Int)
   extends Estimator[MultilayerClassificationModel] {
 
   import Implicits._
@@ -39,15 +40,7 @@ class MultilayerClassifier[+M <: NaiveBayes](firstLevelOvrClassifier: M,
 
     val pm = firstLevelOvrClassifier.extractParamMap()
 
-    firstLevelDataset.printSchema()
-
-    println(s"firstLevelDataset has ${firstLevelDataset.count()} rows")
-
-    firstLevelDataset
-      .select("firstLevelLabel", "label", "features_3")
-      .show(false)
-
-    log.info(s"fitting 1 level using ${df.count} rows")
+    logSpark(s"multi: fitting 1 level using ${df.count} rows")
 
     val cv = new CrossValidator()
       .setEstimator(firstLevelOvrClassifier)
@@ -67,16 +60,15 @@ class MultilayerClassifier[+M <: NaiveBayes](firstLevelOvrClassifier: M,
           .setOutputCol("label")
           .fit(subset)
         val indexedSubset = indexer.transform(subset.drop("features", "features_1", "features_2", "features_3", "features_4", "features_5", "labels"))
-        println(s"fitting ${e._1} pipeline using ${indexedSubset.count} rows")
-        indexedSubset.drop("features_0").show(false)
+        logSpark(s"multi: fitting ${e._1} pipeline using ${indexedSubset.count} rows")
         val cv = new CrossValidator()
           .setEstimator(e._2)
           .setEvaluator(new MulticlassClassificationEvaluator())
           .setNumFolds(5)
           .setEstimatorParamMaps(Array(pm))
-        val pipeline = new TextPipeline(cv, 500)
+        val pipeline = new TextPipeline(cv, subclassesVocabSize)
           .fit(indexedSubset)
-        log.info("fitting 2nd level: " + e._1 + " using " + indexedSubset.count() + " rows")
+        logSpark("multi: fitting 2nd level: " + e._1 + " using " + indexedSubset.count() + " rows")
         e._1 -> (indexer, pipeline)
       }).toMap
 
