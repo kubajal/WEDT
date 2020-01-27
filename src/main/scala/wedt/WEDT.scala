@@ -1,151 +1,139 @@
 package wedt
 
-import java.io.File
-import java.net.URL
-import java.util.Calendar
-
-import org.apache.log4j.Logger
-import org.apache.spark.ml.Pipeline
 import org.apache.spark.ml.classification._
 import org.apache.spark.ml.evaluation.MulticlassClassificationEvaluator
 import org.apache.spark.ml.feature._
-import org.apache.spark.ml.param.ParamMap
-import org.apache.spark.ml.tuning.CrossValidator
-import org.apache.spark.rdd.RDD
+import org.apache.spark.mllib.evaluation.MulticlassMetrics
 import org.apache.spark.sql.DataFrame
-import org.apache.spark.{SparkConf, SparkContext}
-
-import scala.util.{Failure, Success, Try}
 
 object WEDT extends Configuration {
-  import sqlContext.implicits._
+
+  import sparkSession.implicits._
+
+  private val dataProvider =  new DataProvider("resources/20-newsgroups")
+  private val df1 = dataProvider.prepareRddPerClass(1000)
+    .toDF("firstLevelLabel", "secondLevelLabel", "features_0")
+  private val df2 = dataProvider.prepareRddPerSubclass(1000)
+    .toDF("firstLevelLabel", "secondLevelLabel", "features_0")
+
+  val Array(trainDf1, validateDf1) = df1.randomSplit(Array(0.7, 0.3))
+  val Array(trainDf2, validateDf2) = df2.randomSplit(Array(0.7, 0.3))
+
+  var metrics1: MulticlassMetrics = _
+  var metrics2: MulticlassMetrics = _
+  val accuracyEvaluator = new MulticlassClassificationEvaluator()
+    .setMetricName("accuracy")
+  val precisionEvaluator = new MulticlassClassificationEvaluator()
+    .setMetricName("weightedPrecision")
+
 
   def main(args: Array[String]): Unit = {
 
+    logSpark(s"testing with 1000 per class")
+    for {
+      firstLevelVocabSize <- List(100, 1000, 10000)
+      secondLevelVocabSize <- List(100, 1000, 10000)
+    } yield test(firstLevelVocabSize, secondLevelVocabSize, trainDf1, validateDf1)
+    logSpark(s"testing with 1000 per subclass")
+    for {
+      firstLevelVocabSize <- List(100, 1000, 10000)
+      secondLevelVocabSize <- List(100, 1000, 10000)
+    } yield test(firstLevelVocabSize, secondLevelVocabSize, trainDf2, validateDf2)
 
-//    var params: scala.collection.mutable.Map[String, String] = scala.collection.mutable.Map(
-//      "path" -> "",
-//      "train" -> "0.1",
-//      "validate" -> "0.1")
-//
-//    val newParams = args.reduce((a,b) => a + " " + b)
-//      .split("--")
-//      .filter(_ != "")
-//      .map(e => e.split(" "))
-//      .map(e => (e(0), e(1)))
-//      .toMap
-//
-//    newParams.foreach(e => params.update(e._1, e._2))
-//
-//    println("params:")
-//    println(params.toList)
-//
-//    val dataProvider =  new DataProvider(
-//      params("path"),
-//      params("train").toDouble,
-//      params("validate").toDouble)
-//
-//      val accuracyEvaluator1 = new MulticlassClassificationEvaluator()
-//        .setMetricName("accuracy")
-//      val precisionEvaluator1 = new MulticlassClassificationEvaluator()
-//        .setMetricName("weightedPrecision")
-//
-//      val slc1 = new SingleLayerClassifier(
-//        new OneVsRest().setClassifier(new LogisticRegression()),
-//        "regression-single"
-//      )
-//      val trainedModel1 = new TextPipeline(slc1).fit(dataProvider.trainDf)
-//      val validationResult1 = trainedModel1.transform(dataProvider.validateDf)
-//        .withColumnRenamed("secondLevelLabel", "label")
-//      val accuracy = accuracyEvaluator1.evaluate(validationResult1)
-//      val precision = precisionEvaluator1.evaluate(validationResult1)
-//    validationResult1.map(e => (
-//        e.getAs[String]("features_0")
-//          .take(100)
-//          .replace("\n", "")
-//          .replace("\r", ""),
-//        e.getAs[Double]("prediction"),
-//        e.getAs[Double]("label")))
-//        .show(numRows = 100, truncate = false)
-//      logger.info(s"Accuracy  = $accuracy")
-//      logger.info(s"Precision = $precision")
-////      ReadWriteToFileUtils.saveModel(trainedModel1, train)
-//
-//      val accuracyEvaluator2 = new MulticlassClassificationEvaluator()
-//        .setMetricName("accuracy")
-//      val precisionEvaluator2 = new MulticlassClassificationEvaluator()
-//        .setMetricName("weightedPrecision")
-//
-//      val slc2 = new SingleLayerClassifier(
-//        new OneVsRest().setClassifier(new NaiveBayes().setSmoothing(0.8)),
-//        "bayes-single"
-//      )
-//      val trainedModel2 = new TextPipeline(slc2).fit(dataProvider.trainDf)
-//      val validationResult2 = trainedModel2.transform(dataProvider.validateDf)
-//        .withColumnRenamed("secondLevelLabel", "label")
-//      val accuracy2 = accuracyEvaluator2.evaluate(validationResult2)
-//      val precision2 = precisionEvaluator2.evaluate(validationResult2)
-//      validationResult2.map(e => (
-//        e.getAs[String]("features_0")
-//          .take(100)
-//          .replace("\n", "")
-//          .replace("\r", ""),
-//        e.getAs[Double]("prediction"),
-//        e.getAs[Double]("label")))
-//        .show(numRows = 100, truncate = false)
-//      logger.info(s"Accuracy  = $accuracy2")
-//      logger.info(s"Precision = $precision2")
-////      ReadWriteToFileUtils.saveModel(trainedModel2)
-//
-//      val accuracyEvaluator3 = new MulticlassClassificationEvaluator()
-//        .setMetricName("accuracy")
-//      val precisionEvaluator3 = new MulticlassClassificationEvaluator()
-//        .setMetricName("weightedPrecision")
-//
-//      val mlc3 = new MultilayerClassifier(
-//        new OneVsRest().setClassifier(new LogisticRegression()),
-//        (for {i <- 1 to 20} yield new OneVsRest().setClassifier(new LogisticRegression())).toList,
-//        "regression-multi"
-//      )
-//      val trainedModel3 = new TextPipeline(mlc3).fit(dataProvider.trainDf)
-//      val validationResult3 = trainedModel3.transform(dataProvider.validateDf)
-//      val accuracy3 = accuracyEvaluator3.evaluate(validationResult3)
-//      val precision3 = precisionEvaluator3.evaluate(validationResult3)
-//      validationResult3.map(e => (
-//        e.getAs[String]("features_0")
-//          .take(100)
-//          .replace("\n", "")
-//          .replace("\r", ""),
-//        e.getAs[Double]("prediction"),
-//        e.getAs[Double]("label")))
-//        .show(numRows = 100, truncate = false)
-//      logger.info(s"Accuracy  = $accuracy3")
-//      logger.info(s"Precision = $precision3")
-////      ReadWriteToFileUtils.saveModel(trainedModel3)
-//
-//      val accuracyEvaluator4 = new MulticlassClassificationEvaluator()
-//        .setMetricName("accuracy")
-//      val precisionEvaluator4 = new MulticlassClassificationEvaluator()
-//        .setMetricName("weightedPrecision")
-//      val mlc4 = new MultilayerClassifier(
-//        new OneVsRest().setClassifier(new NaiveBayes().setSmoothing(0.8)),
-//        (for {i <- 1 to 20} yield new OneVsRest().setClassifier(new NaiveBayes().setSmoothing(0.8))).toList,
-//        "bayes-multi"
-//      )
-//      val trainedModel4 = new TextPipeline(mlc4).fit(dataProvider.trainDf)
-//      val validationResult4 = trainedModel4.transform(dataProvider.validateDf)
-//      val accuracy4 = accuracyEvaluator4.evaluate(validationResult4)
-//      val precision4 = precisionEvaluator4.evaluate(validationResult4)
-//      validationResult4.map(e => (
-//        e.getAs[String]("features_0")
-//          .take(100)
-//          .replace("\n", "")
-//          .replace("\r", ""),
-//        e.getAs[Double]("prediction"),
-//        e.getAs[Double]("label")))
-//        .show(numRows = 100, truncate = false)
-//      logger.info(s"Accuracy  = $accuracy4")
-//      logger.info(s"Precision = $precision4")
-//      ReadWriteToFileUtils.saveModel(trainedModel4)
+  }
+  def test(firstLevelVocabSize: Int, secondLevelVocabSize: Int, trainDf: DataFrame, validateDf: DataFrame): Unit = {
+
+    logSpark(s"NEW TEST | firstLevelVocabSize: $firstLevelVocabSize, secondLevelVocabSize: $secondLevelVocabSize")
+
+    logSpark(s"Starting Bayes single experiment")
+    val slc = new SingleLayerClassifier(
+      new NaiveBayes().setSmoothing(1.0),
+      "bayes-single"
+    )
+    val pipeline = new TextPipeline(slc, firstLevelVocabSize)
+    logSpark("starting fit for bayes-single")
+    val trainedModel1 = pipeline.fit(trainDf)
+
+    val vocabulary = trainedModel1.stages.takeRight(3).head.asInstanceOf[CountVectorizerModel].vocabulary.toList
+    logSpark(s"single: vocabulary for first level: $vocabulary")
+
+    val indexer = slc.indexer
+    val reverseIndexer = new IndexToString()
+      .setLabels(indexer.labels)
+      .setInputCol("label_0")
+      .setOutputCol("label")
+
+    logSpark("single: completed fit for bayes-single")
+    val validationResult11 = trainedModel1.transform(validateDf)
+    val validationResult1 = indexer.transform(validationResult11)
+
+    val accuracy = accuracyEvaluator.evaluate(validationResult1)
+    val precision = precisionEvaluator.evaluate(validationResult1)
+    ReadWriteToFileUtils.saveModel(trainedModel1, "experiment/bayes-single.obj")
+
+    import sparkSession.implicits._
+
+    metrics1 = new MulticlassMetrics(validationResult1.rdd
+      .map(row => (row.getAs[Double]("prediction"), row.getAs[Double]("label"))))
+    logSpark(s"single: confussion matrix:")
+    val labels = reverseIndexer.transform(metrics1.labels.toList.toDF("label_0"))
+      .select("label").collect.map(e => e(0).asInstanceOf[String])
+
+    logSpark(s"single: labels in confussion matrix${labels.toList}")
+    metrics1.confusionMatrix.rowIter.foreach(e => println(e))
+    logSpark(s"Accuracy  = $accuracy")
+    logSpark(s"Precision = $precision")
+
+    logSpark(s"multi: Starting Bayes multi experiment")
+    val mlc = new MultilayerClassifier(
+      new NaiveBayes().setSmoothing(1),
+      (for {i <- 1 to 20} yield new NaiveBayes().setSmoothing(1)).toList,
+      s"bayes-multi",
+      secondLevelVocabSize
+    )
+
+    logSpark(s"multi: size of DataProvider.trainDf: ${trainDf.count}")
+    logSpark(s"multi: size of DataProvider.validateDf: ${validateDf.count}")
+    logSpark("multi: starting fit for bayes-multi")
+    val trainedModel = new TextPipeline(mlc, firstLevelVocabSize).fit(trainDf)
+    val mlcm = trainedModel.stages.last.asInstanceOf[MultilayerClassificationModel]
+
+    val result = trainedModel.transform(validateDf)
+
+    logSpark(s"multi: result count: ${result.count}")
+
+    logSpark("multi: completed fit for bayes-multi")
+    val validationResult12 = mlcm.firstLevelIndexer.transform(result
+      .drop("prediction")
+      .drop("label")
+      .withColumnRenamed("1stLevelPrediction", "prediction"))
+    mlcm.globalIndexer
+      .setInputCol("secondLevelLabel")
+      .setOutputCol("label")
+    val validationResult2_tmp = mlcm.globalIndexer.transform(result
+      .drop("prediction")
+      .drop("label"))
+    val validationResult2 = mlcm.globalIndexer
+      .setInputCol("predicted2ndLevelClass")
+      .setOutputCol("prediction")
+      .transform(validationResult2_tmp)
+
+    metrics1 = new MulticlassMetrics(validationResult12.rdd
+      .map(row => (row.getAs[Double]("prediction"), row.getAs[Double]("label"))))
+    metrics2 = new MulticlassMetrics(validationResult2.rdd
+      .map(row => (row.getAs[Double]("prediction"), row.getAs[Double]("label"))))
+    logSpark(s"multi: confussion matrix for first level:")
+    metrics1.confusionMatrix.rowIter.foreach(e => println(e))
+    logSpark(s"multi: confussion matrix for second level:")
+    metrics2.confusionMatrix.rowIter.foreach(e => println(e))
+
+    val accuracy1 = accuracyEvaluator.evaluate(validationResult12)
+    val precision1 = precisionEvaluator.evaluate(validationResult12)
+    val accuracy2 = accuracyEvaluator.evaluate(validationResult2)
+    val precision2 = precisionEvaluator.evaluate(validationResult2)
+    logSpark(s"multi: First Level Accuracy   = $accuracy1")
+    logSpark(s"multi: First Level Precision  = $precision1")
+    logSpark(s"multi: Second Level Accuracy  = $accuracy2")
+    logSpark(s"multi: Second Level Precision = $precision2")
   }
 }

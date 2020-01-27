@@ -14,7 +14,7 @@ class Experiment extends AnyFlatSpec with Matchers with Configuration {
   import sparkSession.implicits._
 
   private val dataProvider =  new DataProvider("resources/20-newsgroups")
-  private val df = dataProvider.prepareRdd1(1000)
+  private val df = dataProvider.prepareRddPerClass(1000)
     .toDF("firstLevelLabel", "secondLevelLabel", "features_0")
   private val Array(trainDf, validateDf) = df.randomSplit(Array(0.7, 0.3))
 
@@ -131,33 +131,5 @@ class Experiment extends AnyFlatSpec with Matchers with Configuration {
     logSpark(s"multi: Second Level Accuracy  = $accuracy2")
     logSpark(s"multi: Second Level Precision = $precision2")
 
-//    result.map(e => (
-//      e.getAs[String]("features_0")
-//        .take(100)
-//        .replace("\n", "")
-//        .replace("\r", ""),
-//      e.getAs[Double]("prediction"),
-//      e.getAs[Double]("firstLevelLabel"),
-//      e.getAs[Double]("secondLevelLabel")))
-//      .show(numRows = 100, truncate = false)
-//    val validationResult = trainedModel.transform(DataProvider.validateDf)
-//    val accuracy = accuracyEvaluator.evaluate(validationResult)
-//    val precision = precisionEvaluator.evaluate(validationResult)
-//    ReadWriteToFileUtils.saveModel(trainedModel, "experiment/bayes-multi.obj")
-//
-//    metrics2 = new MulticlassMetrics(validationResult.rdd
-//      .map(row => (row.getAs[Double]("prediction"), row.getAs[Double]("label"))))
-//    logSpark(s"Confussion matrix (Bayes multi):")
-//    logSpark(metrics2.confusionMatrix.toString(20, 1))
-//    assert(accuracy == metrics2.accuracy)
-//    assert(precision == metrics2.precision)
   }
-
-//  "MulticlassMetrics" should "be saved" in {
-//
-//    ReadWriteToFileUtils.saveModel(
-//        metrics1.confusionMatrix, "experiment/metrics1.obj")
-//    ReadWriteToFileUtils.saveModel(
-//        metrics2.confusionMatrix, "experiment/metrics2.obj")
-//  }
 }

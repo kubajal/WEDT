@@ -9,11 +9,11 @@ import scala.util.{Failure, Random, Success, Try}
 
 class DataProvider(path: String) extends Configuration {
 
-  def prepareRdd1(numberOfRowsInAClass: Int): RDD[TaggedText] = {
+  def prepareRddPerClass(perClass: Int): RDD[TaggedText] = {
 
     val subdirs = new File(path + "/").listFiles()
 
-    subdirs.map(subdir => {
+    val df = subdirs.map(subdir => {
 
       val plainTextTry = Try(sparkContext.wholeTextFiles(subdir.getPath))
       plainTextTry match {
@@ -40,7 +40,7 @@ class DataProvider(path: String) extends Configuration {
             })
 
           val numberOfSubclasses = baseDf.count
-          val numberOfRowsInASubclass = numberOfRowsInAClass/numberOfSubclasses
+          val numberOfRowsInASubclass = perClass/numberOfSubclasses
 
           val sample =
             baseDf.map(e =>
@@ -56,12 +56,14 @@ class DataProvider(path: String) extends Configuration {
       }
     }).reduce((a,b) => a.union(b))
       .persist
+    logSpark(s"prepareRddPerClass has ${df.count} rows")
+    df
   }
-  def prepareRdd2(numberOfRowsInAClass: Int): RDD[TaggedText] = {
+  def prepareRddPerSubclass(perSubclass: Int): RDD[TaggedText] = {
 
     val subdirs = new File(path + "/").listFiles()
 
-    subdirs.map(subdir => {
+    val df = subdirs.map(subdir => {
 
       val plainTextTry = Try(sparkContext.wholeTextFiles(subdir.getPath))
       plainTextTry match {
@@ -87,11 +89,9 @@ class DataProvider(path: String) extends Configuration {
                 .map(f => TaggedText(e._1, e._2, f))
             })
 
-          val numberOfSubclasses = baseDf.count
-
           val sample =
             baseDf.map(e =>
-              Random.shuffle(e.toList).take(numberOfRowsInAClass))
+              Random.shuffle(e.toList).take(perSubclass))
               .flatMap(e => e)
           logSpark(s"${subdir.getPath} gave ${sample.count} rows")
           sample.persist
@@ -103,14 +103,7 @@ class DataProvider(path: String) extends Configuration {
       }
     }).reduce((a,b) => a.union(b))
       .persist
+    logSpark(s"prepareRddPerSubclass has ${df.count} rows")
+    df
   }
-
-  import sqlContext.implicits._
-
-  val rdd: RDD[TaggedText] = prepareRdd1(500)
-
-  private val counts = rdd.map(e => e.secondLevelLabel)
-    .countByValue.toList
-  logSpark(s"dataprovider: counts of each secondLevelLabel: $counts")
-
 }

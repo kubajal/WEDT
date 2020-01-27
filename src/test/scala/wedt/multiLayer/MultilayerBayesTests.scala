@@ -13,7 +13,7 @@ class MultilayerBayesTests extends AnyFlatSpec with Matchers with Configuration 
   import sqlContext.implicits._
 
   private val dataProvider =  new DataProvider("resources/20-newsgroups/*")
-  private val df = dataProvider.prepareRdd1(100)
+  private val df = dataProvider.prepareRddPerClass(100)
     .toDF("firstLevelLabel", "secondLevelLabel", "features_0")
   private val Array(trainDf, validateDf) = df.randomSplit(Array(0.7, 0.3))
 
