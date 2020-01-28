@@ -54,7 +54,6 @@ class Experiment extends AnyFlatSpec with Matchers with Configuration {
 
     val accuracy = accuracyEvaluator.evaluate(validationResult)
     val precision = precisionEvaluator.evaluate(validationResult)
-    ReadWriteToFileUtils.saveModel(trainedModel, "experiment/bayes-single.obj")
 
     import sparkSession.implicits._
 

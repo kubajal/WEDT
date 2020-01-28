@@ -29,21 +29,20 @@ object WEDT extends Configuration {
 
   def main(args: Array[String]): Unit = {
 
-    logSpark(s"testing with 1000 per class")
-    for {
-      firstLevelVocabSize <- List(100, 1000, 10000)
-      secondLevelVocabSize <- List(100, 1000, 10000)
-    } yield test(firstLevelVocabSize, secondLevelVocabSize, trainDf1, validateDf1)
+//    logSpark(s"testing with 1000 per class")
+//    for {
+//      firstLevelVocabSize <- List(100, 1000, 10000)
+//    } yield test(firstLevelVocabSize, List(100, 1000, 10000), trainDf1, validateDf1)
     logSpark(s"testing with 1000 per subclass")
     for {
       firstLevelVocabSize <- List(100, 1000, 10000)
-      secondLevelVocabSize <- List(100, 1000, 10000)
-    } yield test(firstLevelVocabSize, secondLevelVocabSize, trainDf2, validateDf2)
+    } yield test(firstLevelVocabSize, List(100, 1000, 10000), trainDf2, validateDf2)
 
   }
-  def test(firstLevelVocabSize: Int, secondLevelVocabSize: Int, trainDf: DataFrame, validateDf: DataFrame): Unit = {
 
-    logSpark(s"NEW TEST | firstLevelVocabSize: $firstLevelVocabSize, secondLevelVocabSize: $secondLevelVocabSize")
+  def test(firstLevelVocabSize: Int, secondLevelVocabSizes: List[Int], trainDf: DataFrame, validateDf: DataFrame): Unit = {
+
+    logSpark(s"NEW TEST | firstLevelVocabSize: $firstLevelVocabSize, secondLevelVocabSize: $secondLevelVocabSizes")
 
     logSpark(s"Starting Bayes single experiment")
     val slc = new SingleLayerClassifier(
@@ -69,7 +68,6 @@ object WEDT extends Configuration {
 
     val accuracy = accuracyEvaluator.evaluate(validationResult1)
     val precision = precisionEvaluator.evaluate(validationResult1)
-    ReadWriteToFileUtils.saveModel(trainedModel1, "experiment/bayes-single.obj")
 
     import sparkSession.implicits._
 
@@ -84,56 +82,60 @@ object WEDT extends Configuration {
     logSpark(s"Accuracy  = $accuracy")
     logSpark(s"Precision = $precision")
 
-    logSpark(s"multi: Starting Bayes multi experiment")
-    val mlc = new MultilayerClassifier(
-      new NaiveBayes().setSmoothing(1),
-      (for {i <- 1 to 20} yield new NaiveBayes().setSmoothing(1)).toList,
-      s"bayes-multi",
-      secondLevelVocabSize
-    )
+    for{
+      secondLevelVocabSize <- secondLevelVocabSizes
+    } yield {
+      logSpark(s"multi: Starting Bayes multi experiment")
+      val mlc = new MultilayerClassifier(
+        new NaiveBayes().setSmoothing(1),
+        (for {i <- 1 to 20} yield new NaiveBayes().setSmoothing(1)).toList,
+        s"bayes-multi",
+        secondLevelVocabSize
+      )
 
-    logSpark(s"multi: size of DataProvider.trainDf: ${trainDf.count}")
-    logSpark(s"multi: size of DataProvider.validateDf: ${validateDf.count}")
-    logSpark("multi: starting fit for bayes-multi")
-    val trainedModel = new TextPipeline(mlc, firstLevelVocabSize).fit(trainDf)
-    val mlcm = trainedModel.stages.last.asInstanceOf[MultilayerClassificationModel]
+      logSpark(s"multi: size of DataProvider.trainDf: ${trainDf.count}")
+      logSpark(s"multi: size of DataProvider.validateDf: ${validateDf.count}")
+      logSpark("multi: starting fit for bayes-multi")
+      val trainedModel = new TextPipeline(mlc, firstLevelVocabSize).fit(trainDf)
+      val mlcm = trainedModel.stages.last.asInstanceOf[MultilayerClassificationModel]
 
-    val result = trainedModel.transform(validateDf)
+      val result = trainedModel.transform(validateDf)
 
-    logSpark(s"multi: result count: ${result.count}")
+      logSpark(s"multi: result count: ${result.count}")
 
-    logSpark("multi: completed fit for bayes-multi")
-    val validationResult12 = mlcm.firstLevelIndexer.transform(result
-      .drop("prediction")
-      .drop("label")
-      .withColumnRenamed("1stLevelPrediction", "prediction"))
-    mlcm.globalIndexer
-      .setInputCol("secondLevelLabel")
-      .setOutputCol("label")
-    val validationResult2_tmp = mlcm.globalIndexer.transform(result
-      .drop("prediction")
-      .drop("label"))
-    val validationResult2 = mlcm.globalIndexer
-      .setInputCol("predicted2ndLevelClass")
-      .setOutputCol("prediction")
-      .transform(validationResult2_tmp)
+      logSpark("multi: completed fit for bayes-multi")
+      val validationResult12 = mlcm.firstLevelIndexer.transform(result
+        .drop("prediction")
+        .drop("label")
+        .withColumnRenamed("1stLevelPrediction", "prediction"))
+      mlcm.globalIndexer
+        .setInputCol("secondLevelLabel")
+        .setOutputCol("label")
+      val validationResult2_tmp = mlcm.globalIndexer.transform(result
+        .drop("prediction")
+        .drop("label"))
+      val validationResult2 = mlcm.globalIndexer
+        .setInputCol("predicted2ndLevelClass")
+        .setOutputCol("prediction")
+        .transform(validationResult2_tmp)
 
-    metrics1 = new MulticlassMetrics(validationResult12.rdd
-      .map(row => (row.getAs[Double]("prediction"), row.getAs[Double]("label"))))
-    metrics2 = new MulticlassMetrics(validationResult2.rdd
-      .map(row => (row.getAs[Double]("prediction"), row.getAs[Double]("label"))))
-    logSpark(s"multi: confussion matrix for first level:")
-    metrics1.confusionMatrix.rowIter.foreach(e => println(e))
-    logSpark(s"multi: confussion matrix for second level:")
-    metrics2.confusionMatrix.rowIter.foreach(e => println(e))
+      metrics1 = new MulticlassMetrics(validationResult12.rdd
+        .map(row => (row.getAs[Double]("prediction"), row.getAs[Double]("label"))))
+      metrics2 = new MulticlassMetrics(validationResult2.rdd
+        .map(row => (row.getAs[Double]("prediction"), row.getAs[Double]("label"))))
+      logSpark(s"multi: confussion matrix for first level:")
+      metrics1.confusionMatrix.rowIter.foreach(e => println(e))
+      logSpark(s"multi: confussion matrix for second level:")
+      metrics2.confusionMatrix.rowIter.foreach(e => println(e))
 
-    val accuracy1 = accuracyEvaluator.evaluate(validationResult12)
-    val precision1 = precisionEvaluator.evaluate(validationResult12)
-    val accuracy2 = accuracyEvaluator.evaluate(validationResult2)
-    val precision2 = precisionEvaluator.evaluate(validationResult2)
-    logSpark(s"multi: First Level Accuracy   = $accuracy1")
-    logSpark(s"multi: First Level Precision  = $precision1")
-    logSpark(s"multi: Second Level Accuracy  = $accuracy2")
-    logSpark(s"multi: Second Level Precision = $precision2")
+      val accuracy1 = accuracyEvaluator.evaluate(validationResult12)
+      val precision1 = precisionEvaluator.evaluate(validationResult12)
+      val accuracy2 = accuracyEvaluator.evaluate(validationResult2)
+      val precision2 = precisionEvaluator.evaluate(validationResult2)
+      logSpark(s"multi: First Level Accuracy   = $accuracy1")
+      logSpark(s"multi: First Level Precision  = $precision1")
+      logSpark(s"multi: Second Level Accuracy  = $accuracy2")
+      logSpark(s"multi: Second Level Precision = $precision2")
+    }
   }
 }

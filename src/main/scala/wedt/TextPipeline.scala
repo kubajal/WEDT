@@ -22,6 +22,7 @@ class TextPipeline(mlc: Estimator[_], vocabSize: Int) extends Pipeline with Conf
   private val vectorizer = new CountVectorizer()
     .setInputCol("features_4")
     .setVocabSize(vocabSize)
+
   private val idf = new IDF()
     .setInputCol("features_5")
 
