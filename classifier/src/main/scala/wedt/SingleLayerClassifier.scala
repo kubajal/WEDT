@@ -25,10 +25,10 @@ class SingleLayerClassifier(firstLevelOvrClassifier: Estimator[_],
 
     val df = dataset.asInstanceOf[DataFrame]
 
-    logSpark(s"single: fit: got df of ${df.count} rows")
+    //logSpark(s"single: fit: got df of ${df.count} rows")
 
-    val featuresNumber = df.head.getAs[org.apache.spark.ml.linalg.Vector]("features").size
-    logSpark(s"single: number of features: $featuresNumber")
+    //val featuresNumber = df.head.getAs[org.apache.spark.ml.linalg.Vector]("features").size
+    //logSpark(s"single: number of features: $featuresNumber")
 
     indexer = new StringIndexer()
       .setInputCol("secondLevelLabel")
@@ -37,7 +37,7 @@ class SingleLayerClassifier(firstLevelOvrClassifier: Estimator[_],
     val secondLevelDataset = indexer.transform(df)
     val pm = firstLevelOvrClassifier.extractParamMap()
 
-    logSpark("single: fitting 1 level")
+//    logSpark("single: fitting 1 level")
     new CrossValidator()
       .setEstimator(firstLevelOvrClassifier)
       .setEvaluator(new MulticlassClassificationEvaluator())

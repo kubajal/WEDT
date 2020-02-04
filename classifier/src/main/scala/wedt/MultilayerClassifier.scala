@@ -40,7 +40,7 @@ class MultilayerClassifier[+M <: NaiveBayes](firstLevelOvrClassifier: M,
 
     val pm = firstLevelOvrClassifier.extractParamMap()
 
-    logSpark(s"multi: fitting 1 level using ${df.count} rows")
+    //logSpark(s"multi: fitting 1 level using ${df.count} rows")
 
     val cv = new CrossValidator()
       .setEstimator(firstLevelOvrClassifier)
@@ -60,7 +60,7 @@ class MultilayerClassifier[+M <: NaiveBayes](firstLevelOvrClassifier: M,
           .setOutputCol("label")
           .fit(subset)
         val indexedSubset = indexer.transform(subset.drop("features", "features_1", "features_2", "features_3", "features_4", "features_5", "labels"))
-        logSpark(s"multi: fitting ${e._1} pipeline using ${indexedSubset.count} rows")
+        //logSpark(s"multi: fitting ${e._1} pipeline using ${indexedSubset.count} rows")
         val cv = new CrossValidator()
           .setEstimator(e._2)
           .setEvaluator(new MulticlassClassificationEvaluator())
@@ -68,7 +68,7 @@ class MultilayerClassifier[+M <: NaiveBayes](firstLevelOvrClassifier: M,
           .setEstimatorParamMaps(Array(pm))
         val pipeline = new TextPipeline(cv, subclassesVocabSize)
           .fit(indexedSubset)
-        logSpark("multi: fitting 2nd level: " + e._1 + " using " + indexedSubset.count() + " rows")
+        //logSpark("multi: fitting 2nd level: " + e._1 + " using " + indexedSubset.count() + " rows")
         e._1 -> (indexer, pipeline)
       }).toMap
 

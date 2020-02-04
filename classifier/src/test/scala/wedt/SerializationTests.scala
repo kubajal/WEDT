@@ -15,7 +15,7 @@ class SerializationTests extends AnyFlatSpec with Matchers with Configuration {
 
   "Serialization" should "work on PipelineModel" in {
 
-    val dataProvider = new DataProvider("resources/tests/*")
+    val dataProvider = new DataProvider("classifier/resources/tests/*")
     val df = dataProvider.prepareRddPerClass(100)
       .toDF("firstLevelLabel", "secondLevelLabel", "features_0")
 

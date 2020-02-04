@@ -14,7 +14,7 @@ trait Configuration {
 
   val conf = new SparkConf()
   conf.setMaster("local[*]")
-  conf.setAppName("NONE")
+  conf.setAppName("WEDT")
   val sparkSession: SparkSession = SparkSession
     .builder
     .config(conf)
@@ -23,12 +23,12 @@ trait Configuration {
   val defaultPath = "resources/20-newsgroups/*"
   val sqlContext: SQLContext = sparkSession.sqlContext
   var model: Model[_] = _
-  sparkContext.setLogLevel("ERROR")
+  sparkContext.setLogLevel("OFF")
   val logger: Logger = Logger.getLogger(getClass.getName)
 
   val layers: Array[Int] = Array[Int](4, 5, 4, 3)
 
   def logSpark(s: String) = {
-    println(s"${Instant.now()}: $s")
+    println(s"$s")
   }
 }
