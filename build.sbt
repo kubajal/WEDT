@@ -11,6 +11,8 @@ lazy val global = (project in file("."))
     scrapper
   )
 
+resolvers += Resolver.jcenterRepo
+
 lazy val classifier = project
   .settings(libraryDependencies ++= Seq(
     "com.novocode" % "junit-interface" % "0.11" % "test",
@@ -23,13 +25,11 @@ lazy val classifier = project
     "edu.stanford.nlp" % "stanford-corenlp" % "3.9.2",
     "com.typesafe.akka" %% "akka-http"   % "10.1.11",
     "com.typesafe.akka" %% "akka-stream" % "2.5.26" // or whatever the latest version is
-  ) )
+  ))
 lazy val scrapper = project
-  .settings(libraryDependencies ++= Seq("com.typesafe.akka" %% "akka-actor" % "2.6.1",
-    "com.typesafe.akka" %% "akka-cluster-tools" % "2.6.1",
-    "com.typesafe.akka"     %% "akka-remote" % "2.6.1",
-    "com.typesafe.akka" %% "akka-cluster-typed" % "2.6.1",
-    "com.typesafe.play" %% "play-iteratees" % "2.6.1",
-    "org.scala-js" %% "scalajs-library" % "1.0.0-RC2",
-    "org.mongodb.scala" %% "mongo-scala-driver" % "2.8.0"))
+  .settings(libraryDependencies ++= Seq(
+    "org.mongodb.scala" %% "mongo-scala-driver" % "2.8.0",
+    "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.10.2",
+    "org.jsoup" % "jsoup" % "1.9.1")
+  )
 
