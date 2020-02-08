@@ -30,5 +30,6 @@ lazy val scrapper = project
     "com.typesafe.akka"     %% "akka-remote" % "2.6.1",
     "com.typesafe.akka" %% "akka-cluster-typed" % "2.6.1",
     "com.typesafe.play" %% "play-iteratees" % "2.6.1",
-    "org.scala-js" %% "scalajs-library" % "1.0.0-RC2") )
+    "org.scala-js" %% "scalajs-library" % "1.0.0-RC2",
+    "org.mongodb.scala" %% "mongo-scala-driver" % "2.8.0"))
 
